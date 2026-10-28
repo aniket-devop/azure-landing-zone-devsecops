@@ -1,4 +1,4 @@
-<div align="center">
+copy "C:\Users\aniket kumar\Downloads\Azure Industrial IoT Monitoring Architecture.png" docs\images\architecture-diagram.png<div align="center">
 
 # ☁️ Azure Landing Zone & DevSecOps
 ### Secure, Automated Delivery of an Industrial IoT Monitoring Platform for Petroleum Refineries
