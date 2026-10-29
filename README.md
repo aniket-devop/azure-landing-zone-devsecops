@@ -2,9 +2,11 @@
 
 # ☁️ Azure Landing Zone & DevSecOps
 
-### Secure, automated cloud platform for an Industrial IoT monitoring system in petroleum refineries
+### A secure, automated Azure platform for Industrial IoT monitoring in petroleum refineries
 
-**Everything as code. Every release scanned, costed, reviewed and approved.**
+**Infrastructure as code. Security shifted left. Every release scanned, costed, reviewed and approved.**
+
+<br>
 
 ![Azure](https://img.shields.io/badge/Cloud-Microsoft%20Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-844FBA?style=for-the-badge&logo=terraform&logoColor=white)
@@ -17,82 +19,88 @@
 ![TFLint](https://img.shields.io/badge/Lint-TFLint-5C4EE5)
 ![Infracost](https://img.shields.io/badge/FinOps-Infracost-FF6B35)
 
-[🏗️ Architecture](#️-3-architecture-diagram) · [🔀 Traffic flow](#-4-high-level-architecture-and-traffic-flow) · [🚦 Pipelines](#️-8-infrastructure-cicd-pipeline) · [🧑‍🔧 My role](#-14-my-devsecops-role-and-responsibilities)
+<br>
+
+[**Architecture**](#architecture) · [**Security**](#security-model) · [**Pipelines**](#infrastructure-pipeline) · [**Design decisions**](#key-design-decisions) · [**My role**](#my-role) · [**Contact**](#contact)
 
 </div>
 
 > [!NOTE]
-> The application code was written by the wider development team. This repository documents the **platform and delivery pipelines**, which is the DevSecOps work I owned. See [section 14](#-14-my-devsecops-role-and-responsibilities) for my exact contribution.
+> The application code was written by the wider development team. This repository documents the **platform and the delivery pipelines**, the DevSecOps work I owned. See [My role](#my-role) for the details.
 
 ---
 
-## ⚡ TL;DR
-
-| | |
-|---|---|
-| **What** | A three-tier Azure platform that collects IoT data from refinery motors and pumps, shows it on dashboards and raises alerts on abnormal readings |
-| **How** | Azure Landing Zone built with modular **Terraform**, delivered through **Azure DevOps** pipelines |
-| **Why it's interesting** | Security, quality and cost checks run *before* anything is applied, and nothing reaches Prod without human approval |
-| **My role** | DevSecOps Engineer: designed the Landing Zone, Terraform structure and all pipelines |
-
----
-
-## 🌟 Key Highlights
-
-| Area | Summary |
-|---|---|
-| 🏗️ **Infrastructure as Code** | Azure Landing Zone built with reusable Terraform child modules plus per-environment configuration |
-| 🔒 **Security built in** | WAF and TLS at the edge, subnet segmentation, private endpoints for PostgreSQL, Key Vault for secrets, Bastion for admin access |
-| ⬅️ **Shift-left checks** | `terraform validate`, tfsec, TFLint and Infracost run before any infrastructure change is applied |
-| ✅ **Controlled releases** | Plan review with manual approval, plus approval gates between Dev, Test and Prod |
-| 🔀 **Independent pipelines** | Infrastructure CI/CD is separate from application CI/CD; the app has separate frontend, backend and database pipelines |
-| 🗄️ **Versioned schema changes** | Database changes ship through Liquibase in a dedicated pipeline |
+## At a glance
 
 <div align="center">
 
-| 3 | 3 | 4 | 4 | 2 |
+| **3** | **3** | **4** | **4** | **2** |
 |:---:|:---:|:---:|:---:|:---:|
-| **environments**<br>Dev, Test, Prod | **app pipelines**<br>frontend, backend, database | **subnets**<br>frontend, backend, database, Bastion | **IaC checks**<br>validate, tfsec, TFLint, Infracost | **approval points**<br>before apply, between environments |
+| environments<br>Dev · Test · Prod | application pipelines<br>frontend · backend · database | network subnets<br>frontend · backend · database · Bastion | automated IaC checks<br>validate · tfsec · TFLint · Infracost | approval points<br>before apply · between environments |
 
 </div>
 
----
+| | |
+|---|---|
+| **The system** | A three-tier Azure application that collects IoT data from refinery motors and pumps, shows it on dashboards and alerts operators when a reading crosses a threshold |
+| **The platform** | Azure Landing Zone provisioned with modular Terraform, split into dedicated subnets with a WAF at the edge and private database access |
+| **The delivery** | Azure DevOps pipelines for infrastructure and for each application component, with security, quality and cost checks and manual approval gates |
+| **My role** | DevSecOps Engineer: Landing Zone design, Terraform structure and every pipeline |
 
-## 📑 Table of Contents
+### 🔎 Reviewing this in 60 seconds?
 
-1. [Project Overview](#-1-project-overview)
-2. [Business Problem and Solution](#-2-business-problem-and-solution)
-3. [Architecture Diagram](#️-3-architecture-diagram)
-4. [High-Level Architecture and Traffic Flow](#-4-high-level-architecture-and-traffic-flow)
-5. [Azure Landing Zone and Network Design](#-5-azure-landing-zone-and-network-design)
-6. [Security and Access Management](#️-6-security-and-access-management)
-7. [Terraform Repository Structure](#-7-terraform-repository-structure)
-8. [Infrastructure CI/CD Pipeline](#️-8-infrastructure-cicd-pipeline)
-9. [Terraform Security, Validation and Cost Estimation](#-9-terraform-security-validation-and-cost-estimation)
-10. [Application CI/CD Pipeline](#-10-application-cicd-pipeline)
-11. [Dev, Test and Prod Promotion Strategy](#-11-dev-test-and-prod-promotion-strategy)
-12. [Database Migration with Liquibase](#️-12-database-migration-with-liquibase)
-13. [Monitoring and Alerting](#-13-monitoring-and-alerting)
-14. [My DevSecOps Role and Responsibilities](#-14-my-devsecops-role-and-responsibilities)
-15. [Technology Stack](#-15-technology-stack)
-16. [Setup and Deployment Guide](#️-16-setup-and-deployment-guide)
-17. [Validation and Troubleshooting](#-17-validation-and-troubleshooting)
-18. [Cleanup and Cost Considerations](#-18-cleanup-and-cost-considerations)
+| If you care about... | Go to |
+|---|---|
+| How the cloud is designed | [Architecture](#architecture) and [Network design](#network-design) |
+| How it is secured | [Security model](#security-model) |
+| How changes reach production safely | [Infrastructure pipeline](#infrastructure-pipeline) and [Promotion](#promotion-across-environments) |
+| Why it was built this way | [Key design decisions](#key-design-decisions) |
+| What I personally did | [My role](#my-role) |
 
 ---
 
-## 🚀 1. Project Overview
+## Table of contents
 
-This project is an Azure-hosted, three-tier **industrial IoT monitoring and alerting application** for a customer that runs several petroleum refineries.
+<details>
+<summary><b>Click to expand</b></summary>
 
-IoT devices on motors and pumps send operational metrics to **Azure Event Hubs**. The application processes that data, shows it on monitoring dashboards, and raises an alert when a reading goes past its threshold.
+<br>
 
-My part was the platform and the delivery around it:
+1. [The problem and the solution](#the-problem-and-the-solution)
+2. [Architecture](#architecture)
+3. [Network design](#network-design)
+4. [Security model](#security-model)
+5. [Terraform structure](#terraform-structure)
+6. [Infrastructure pipeline](#infrastructure-pipeline)
+7. [Application pipelines](#application-pipelines)
+8. [Promotion across environments](#promotion-across-environments)
+9. [Database migrations](#database-migrations)
+10. [Monitoring and alerting](#monitoring-and-alerting)
+11. [Key design decisions](#key-design-decisions)
+12. [My role](#my-role)
+13. [Technology stack](#technology-stack)
+14. [Screenshots](#screenshots)
+15. [Setup and deployment](#setup-and-deployment)
+16. [Validation and troubleshooting](#validation-and-troubleshooting)
+17. [Cleanup and cost](#cleanup-and-cost)
+18. [Contact](#contact)
 
-- **Platform:** designing the Azure Landing Zone and provisioning it with Terraform.
-- **Delivery:** building Azure DevOps pipelines that ship infrastructure and application through Dev, Test and Prod, with automated security, quality and cost checks and manual approvals.
+</details>
 
-Infrastructure and application releases run in **separate pipelines**, so an application release never waits on an infrastructure change, and the other way round.
+---
+
+## The problem and the solution
+
+Motors and pumps are critical equipment in a refinery. A temperature that keeps climbing, for example, can point to a fault that is still developing. Operators need to see the condition of equipment across several sites, and they need to be told quickly when something looks wrong.
+
+| Need | How the platform handles it |
+|---|---|
+| Collect equipment metrics | IoT devices send data to **Azure Event Hubs** |
+| See equipment condition | The application processes the data and shows it on monitoring dashboards |
+| Act on abnormal readings | Operators are alerted when a metric crosses a threshold, such as motor temperature above **100 °C** |
+| Run it safely | A segmented Azure network with layered controls, deployed through repeatable, reviewed and approved pipelines |
+
+My part was everything underneath and around the application: the **Azure platform** and the **delivery pipelines**.
 
 ```mermaid
 flowchart LR
@@ -123,36 +131,15 @@ flowchart LR
 
 ---
 
-## 🎯 2. Business Problem and Solution
-
-### The problem
-
-Motors and pumps are critical equipment in a refinery. A temperature that keeps climbing, for example, can point to a fault that is still developing. Operators need to see the condition of equipment across several sites, and they need to be told quickly when something looks wrong.
-
-### The solution
-
-| Need | How the platform handles it |
-|---|---|
-| Collect equipment metrics | IoT devices send data to Azure Event Hubs |
-| See equipment condition | The application processes the data and shows it on monitoring dashboards |
-| Act on abnormal readings | Alerts go to operators when a metric crosses a threshold, such as motor temperature above **100 °C** |
-| Run it safely | A segmented Azure network with layered controls, deployed through repeatable, reviewed and approved pipelines |
-
----
-
-## 🗺️ 3. Architecture Diagram
+## Architecture
 
 <div align="center">
 
 ![Azure architecture diagram](docs/images/architecture-diagram.png)
 
-*Three-tier Azure architecture: Application Gateway (WAF) → frontend VMs → Internal Load Balancer → backend VMs → PostgreSQL via private endpoints*
+*Application Gateway (TLS + WAF) → frontend VMs → Internal Load Balancer → backend VMs → PostgreSQL over private endpoints*
 
 </div>
-
----
-
-## 🔀 4. High-Level Architecture and Traffic Flow
 
 The platform is a classic three-tier design: presentation, application and data. Each tier sits in its own subnets of one Azure Virtual Network.
 
@@ -175,25 +162,21 @@ flowchart LR
     class DB,KV data;
 ```
 
-### Request flow
+**Request flow**
 
-1. Users, such as refinery operators, reach the application through **Azure Application Gateway**. It terminates SSL/TLS and inspects traffic with the **Web Application Firewall (WAF)**.
-2. Application Gateway passes allowed requests to the two frontend VMs.
-3. The frontend calls the backend through an **Internal Load Balancer**, which spreads the load over the two backend VMs.
-4. The backend talks to **Azure Database for PostgreSQL Flexible Server** over private endpoints, so database traffic never leaves the private network.
+1. Users, such as refinery operators, reach the application through **Azure Application Gateway**, which terminates TLS and inspects traffic with the **Web Application Firewall (WAF)**.
+2. Application Gateway forwards allowed requests to the two frontend VMs.
+3. The frontend calls the backend through an **Internal Load Balancer**, which spreads load across the two backend VMs.
+4. The backend talks to **Azure Database for PostgreSQL Flexible Server** over private endpoints, so database traffic stays on the private network.
 5. Secrets are kept in **Azure Key Vault**.
 
-### Data ingestion flow
+**Data ingestion:** IoT devices on motors and pumps publish metrics to **Azure Event Hubs**. The application processes them, updates the dashboard and checks alert thresholds.
 
-IoT devices on motors and pumps publish metrics to **Azure Event Hubs**. The application processes them, updates the dashboard and checks alert thresholds.
-
-### Administrative access
-
-Administrators connect to the VMs through **Azure Bastion**. No management ports are open to the internet.
+**Administrative access:** Administrators connect to the VMs through **Azure Bastion**. No management ports are open to the internet.
 
 ---
 
-## 🧱 5. Azure Landing Zone and Network Design
+## Network design
 
 The whole Landing Zone is provisioned with Terraform. The network is split into dedicated subnets, so each tier has one job and limited exposure.
 
@@ -204,38 +187,36 @@ The whole Landing Zone is provisioned with Terraform. The network is split into 
 | **Database** | Data tier | PostgreSQL Flexible Server via private endpoints |
 | **Bastion** | Administrative access | Azure Bastion |
 
-### Network boundaries
-
 | Boundary | Behaviour |
 |---|---|
 | 🌐 Internet → platform | Traffic enters only through Application Gateway, where TLS ends and the WAF inspects requests |
-| ↔️ Frontend → backend | Goes through an Internal Load Balancer, so the backend is only reachable from inside the virtual network |
+| ↔️ Frontend → backend | Goes through an Internal Load Balancer, so the backend is reachable only from inside the virtual network |
 | 🗄️ Backend → database | Uses private endpoints, keeping PostgreSQL traffic on the private network |
 | 🛠️ Admin → VMs | Goes through Azure Bastion in its own subnet |
 
 ---
 
-## 🛡️ 6. Security and Access Management
+## Security model
 
-Security is layered: at the network edge, inside the network, at the data tier, and in the delivery pipeline.
+Security is layered: at the edge, inside the network, at the data tier, and in the delivery pipeline.
 
 | Layer | Control | Purpose |
 |---|---|---|
-| Edge | Application Gateway with WAF | Ends TLS and inspects inbound web traffic |
-| Network | Subnet segmentation | Separate frontend, backend, database and Bastion subnets |
-| Network | Internal Load Balancer | Keeps backend traffic inside the virtual network |
-| Data | Private endpoints for PostgreSQL | Keeps database connectivity private |
-| Access | Azure Bastion | VM administration without public management ports |
-| Secrets | Azure Key Vault | Keeps secrets out of code and pipeline definitions |
-| Pipeline | tfsec and TFLint | Catch misconfigurations and quality problems before deployment |
-| Pipeline | SonarQube | Code-quality checks on application code |
-| Process | Manual approval gates | A person signs off before apply and before each promotion |
+| **Edge** | Application Gateway with WAF | Ends TLS and inspects inbound web traffic |
+| **Network** | Subnet segmentation | Separates frontend, backend, database and Bastion subnets |
+| **Network** | Internal Load Balancer | Keeps backend traffic inside the virtual network |
+| **Data** | Private endpoints for PostgreSQL | Keeps database connectivity private |
+| **Access** | Azure Bastion | VM administration without public management ports |
+| **Secrets** | Azure Key Vault | Keeps secrets out of code and pipeline definitions |
+| **Pipeline** | tfsec and TFLint | Catch misconfigurations and quality problems before deployment |
+| **Pipeline** | SonarQube | Code-quality checks on application code |
+| **Process** | Manual approval gates | A person signs off before apply and before each promotion |
 
 ---
 
-## 📦 7. Terraform Repository Structure
+## Terraform structure
 
-The Terraform code is modular. Reusable **child modules** define each component (networking, compute, database, security), and **environment-specific configuration** provides the values for Dev, Test and Prod. That keeps the environments consistent and avoids copy-pasted code.
+The Terraform code is modular. Reusable **child modules** define each component (networking, compute, database, security), and **environment-specific configuration** supplies the values for Dev, Test and Prod. Environments stay consistent and nothing is copy-pasted.
 
 Branching is **trunk-based**, with `main` as the trunk.
 
@@ -251,9 +232,9 @@ Branching is **trunk-based**, with `main` as the trunk.
 
 ---
 
-## 🏗️ 8. Infrastructure CI/CD Pipeline
+## Infrastructure pipeline
 
-Infrastructure is delivered by Azure DevOps pipelines that are separate from the application pipelines. A change merged to `main` is validated, scanned, costed and planned. It is applied **only after someone reviews the plan and approves it**.
+Infrastructure is delivered by Azure DevOps pipelines that are separate from the application pipelines. A change merged to `main` is validated, scanned, costed and planned, and it is applied **only after someone reviews the plan and approves it**.
 
 ```mermaid
 flowchart LR
@@ -275,52 +256,34 @@ flowchart LR
     class H stop;
 ```
 
-| Stage | What happens |
-|---|---|
-| ✔️ Validate | The Terraform configuration is validated |
-| 🔍 Scan | tfsec and TFLint analyse the code |
-| 💰 Cost estimate | Infracost estimates the cost of the change |
-| 📋 Plan | Terraform produces an execution plan |
-| 👀 Review and approve | The plan is reviewed and explicitly approved |
-| 🚀 Apply | Terraform applies the approved plan |
-
----
-
-## 🔐 9. Terraform Security, Validation and Cost Estimation
-
-| Tool / step | Role in the pipeline |
-|---|---|
-| **Terraform validate** | Confirms the configuration is syntactically valid and consistent |
-| **tfsec** | Static security analysis that flags likely misconfigurations |
-| **TFLint** | Linting for code quality, best practice and likely errors |
-| **Infracost** | Shows the cost impact of a change while it is being reviewed |
-| **Plan review** | Engineers see exactly what will be created, changed or destroyed |
-| **Manual approval** | The gate between plan and apply, so nothing is applied without sign-off |
+| Stage | Tool | What it does |
+|---|---|---|
+| ✔️ Validate | `terraform validate` | Confirms the configuration is syntactically valid and consistent |
+| 🔍 Scan | tfsec | Static security analysis that flags likely misconfigurations |
+| 🧹 Lint | TFLint | Checks code quality, best practice and likely errors |
+| 💰 Cost | Infracost | Shows the cost impact of the change while it is reviewed |
+| 📋 Plan | `terraform plan` | Shows exactly what will be created, changed or destroyed |
+| 👀 Approve | Manual gate | Nothing is applied without explicit sign-off |
+| 🚀 Apply | `terraform apply` | Applies the approved plan |
 
 > [!TIP]
-> All of these run **before** apply. Security, quality and cost problems show up at the earliest point, when they are cheapest to fix.
+> Every check runs **before** apply, so security, quality and cost problems surface when they are cheapest to fix.
 
 ---
 
-## 🧑‍💻 10. Application CI/CD Pipeline
+## Application pipelines
 
-Frontend, backend and database each have their own pipeline. Each one can be built, checked and released without touching the others, and without waiting for an infrastructure change.
+Frontend, backend and database each have their own pipeline. Each can be built, checked and released without touching the others, and without waiting for an infrastructure change.
 
 | Pipeline | Scope |
 |---|---|
 | **Frontend** | Build, quality check and deployment to the frontend VMs |
 | **Backend** | Build, quality check and deployment to the backend VMs |
-| **Database** | Schema changes with Liquibase ([section 12](#️-12-database-migration-with-liquibase)) |
+| **Database** | Schema changes with Liquibase |
 
-Shared by all three:
+Shared by all three: **SonarQube** quality checks, **Azure Pipeline Artifacts** for build output (so the artifact that was tested is the one that gets promoted), and deployment through Dev, Test and Prod with manual approval gates.
 
-- **SonarQube** code-quality checks
-- **Azure Pipeline Artifacts** for build output, so the artifact that was tested is the one that gets promoted
-- Deployment through Dev, Test and Prod with manual approval gates ([section 11](#-11-dev-test-and-prod-promotion-strategy))
-
-### Infrastructure vs. application CI/CD
-
-| | Infrastructure CI/CD | Application CI/CD |
+|  | Infrastructure CI/CD | Application CI/CD |
 |---|---|---|
 | **Delivers** | Azure resources (Landing Zone) via Terraform | Frontend, backend and database changes |
 | **Checks** | Validate, tfsec, TFLint, Infracost, plan review | SonarQube |
@@ -329,9 +292,7 @@ Shared by all three:
 
 ---
 
-## 🚦 11. Dev, Test and Prod Promotion Strategy
-
-Infrastructure and applications both move through three environments.
+## Promotion across environments
 
 ```mermaid
 flowchart LR
@@ -351,21 +312,21 @@ flowchart LR
     class Prod prod;
 ```
 
-- **Build once, promote the same artifact.** It is not rebuilt for each environment.
-- **Manual approval gates** control movement between environments, so a release reaches Test and Prod only after sign-off.
-- **Configuration, not code, differs** between environments.
+- **Build once, promote the same artifact.** It is never rebuilt per environment.
+- **Approval gates** control movement between environments, so a release reaches Test and Prod only after sign-off.
+- **Configuration, not code,** is what differs between environments.
 
 ---
 
-## 🗄️ 12. Database Migration with Liquibase
+## Database migrations
 
-Schema changes are handled by **Liquibase** and released through a dedicated database pipeline. The changes are version-controlled and reviewable, and they are applied in the same order in Dev, Test and Prod, behind the same approval gates as the other pipelines.
+Schema changes are handled by **Liquibase** and released through a dedicated database pipeline. Changes are version-controlled and reviewable, and they are applied in the same order in Dev, Test and Prod behind the same approval gates as the other pipelines.
 
 The target is **Azure Database for PostgreSQL Flexible Server**, reached through private endpoints.
 
 ---
 
-## 📈 13. Monitoring and Alerting
+## Monitoring and alerting
 
 ```mermaid
 flowchart LR
@@ -380,15 +341,26 @@ flowchart LR
     class N,O alert;
 ```
 
-1. IoT devices send metrics to Azure Event Hubs.
-2. The application processes the incoming data.
-3. Metrics show up on the monitoring dashboard.
-4. When a metric passes its threshold, an alert goes to the refinery operators.
-5. Operators investigate and take action.
+---
+
+## Key design decisions
+
+| Decision | Why it matters |
+|---|---|
+| **Separate infrastructure and application pipelines** | An application release never waits on an infrastructure change, and the other way round |
+| **Separate frontend, backend and database pipelines** | Each component ships independently, with a smaller blast radius per release |
+| **Modular Terraform with per-environment configuration** | Dev, Test and Prod stay consistent, and there is no copy-pasted code |
+| **Security and cost checks before apply** | Misconfigurations and surprise costs are caught while they are still cheap to fix |
+| **Manual approval before apply and between environments** | A person signs off on every infrastructure change and every promotion |
+| **Build once, promote the same artifact** | What was tested in Dev is exactly what reaches Prod |
+| **Private endpoints for PostgreSQL** | Database traffic never leaves the private network |
+| **Azure Bastion for administration** | No management ports are exposed to the internet |
+| **Liquibase for schema changes** | Database changes are versioned, reviewable and applied in the same order everywhere |
+| **Trunk-based branching on `main`** | One source of truth and a simple, predictable flow into the pipelines |
 
 ---
 
-## 🧑‍🔧 14. My DevSecOps Role and Responsibilities
+## My role
 
 I was the **DevSecOps engineer** on this project. The development team built the application; I was responsible for the Azure platform and the delivery pipelines around it.
 
@@ -406,13 +378,11 @@ I was the **DevSecOps engineer** on this project. The development team built the
 | 🚦 **Promotion** | Set up deployments across Dev, Test and Prod with manual approval gates |
 | 🗄️ **Schema changes** | Used Liquibase for database migrations |
 
-### 💡 Skills demonstrated
-
-`Azure Landing Zone design` · `Terraform modules` · `Azure DevOps YAML pipelines` · `DevSecOps / shift-left security` · `Network segmentation` · `Private endpoints` · `Secrets management` · `FinOps with Infracost` · `Release governance` · `Database migrations as code`
+**Skills demonstrated:** `Azure Landing Zone design` · `Terraform modules` · `Azure DevOps YAML pipelines` · `Shift-left security` · `Network segmentation` · `Private endpoints` · `Secrets management` · `FinOps with Infracost` · `Release governance` · `Database migrations as code`
 
 ---
 
-## 🧰 15. Technology Stack
+## Technology stack
 
 | Area | Technology |
 |---|---|
@@ -432,11 +402,30 @@ I was the **DevSecOps engineer** on this project. The development team built the
 
 ---
 
-## 🛠️ 16. Setup and Deployment Guide
+## Screenshots
+
+<!--
+Add your own sanitized screenshots here (remove secrets, subscription IDs and internal names first).
+Save images in docs/images/ and uncomment the rows below.
+
+| Infrastructure pipeline run | Approval gate |
+|:---:|:---:|
+| ![Pipeline run](docs/images/pipeline-run.png) | ![Approval](docs/images/approval-gate.png) |
+
+| Infracost output | SonarQube result |
+|:---:|:---:|
+| ![Infracost](docs/images/infracost.png) | ![SonarQube](docs/images/sonarqube.png) |
+-->
+
+*Screenshots coming soon.*
+
+---
+
+## Setup and deployment
 
 Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 
-### Prerequisites
+**Prerequisites**
 
 - An Azure subscription with permission to deploy the Landing Zone
 - An Azure DevOps organisation and project with pipeline permissions
@@ -444,16 +433,16 @@ Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 - A remote Terraform state backend
 - The tools the pipelines use: Terraform, tfsec, TFLint, Infracost, SonarQube, Liquibase
 
-### Deployment order
+**Deployment order**
 
-1. **Infrastructure.** Merge to `main` and run the infrastructure pipeline. Check the validation, scan, cost and plan output, then approve to apply.
-2. **Database.** Run the database pipeline to apply the Liquibase changes.
-3. **Backend and frontend.** Run the backend and frontend pipelines to deploy the application artifacts.
-4. **Promote.** Move the release through Dev, Test and Prod, approving at each gate.
+1. **Infrastructure:** merge to `main` and run the infrastructure pipeline. Check the validation, scan, cost and plan output, then approve to apply.
+2. **Database:** run the database pipeline to apply the Liquibase changes.
+3. **Backend and frontend:** run their pipelines to deploy the application artifacts.
+4. **Promote:** move the release through Dev, Test and Prod, approving at each gate.
 
 ---
 
-## 🔎 17. Validation and Troubleshooting
+## Validation and troubleshooting
 
 <details>
 <summary><b>✅ Post-release checklist</b></summary>
@@ -491,13 +480,11 @@ Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 
 ---
 
-## 🧹 18. Cleanup and Cost Considerations
+## Cleanup and cost
 
-### Cost
+**Cost:** Infracost runs in the infrastructure pipeline, so the cost of a change is visible **before** it is approved. The resources that carry ongoing cost are the VMs, Application Gateway, Azure Bastion, PostgreSQL Flexible Server and Event Hubs. For real numbers, check current Azure pricing and the Infracost output.
 
-Infracost runs in the infrastructure pipeline, so the cost of a change is visible **before** it is approved. The resources that carry ongoing cost are the VMs, Application Gateway, Azure Bastion, PostgreSQL Flexible Server and Event Hubs. For real numbers, check current Azure pricing and the Infracost output.
-
-### Cleanup
+**Cleanup**
 
 1. Confirm that the environment and its data can be removed.
 2. Remove the infrastructure through the Terraform pipeline or an approved destroy process.
@@ -507,6 +494,8 @@ Infracost runs in the infrastructure pipeline, so the cost of a change is visibl
 > Destroying Prod should always need explicit approval.
 
 ---
+
+## Contact
 
 <div align="center">
 
