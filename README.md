@@ -1,404 +1,508 @@
 <div align="center">
 
-# Aniket Kumar
+![Banner](https://capsule-render.vercel.app/api?type=waving&color=0:0078D4,100:844FBA&height=200&section=header&text=Azure%20Landing%20Zone%20%26%20DevSecOps&fontSize=40&fontColor=ffffff&fontAlignY=38&desc=Industrial%20IoT%20Monitoring%20Platform%20for%20Petroleum%20Refineries&descSize=17&descAlignY=60)
 
-### DevOps Engineer &nbsp;·&nbsp; Azure &nbsp;·&nbsp; Terraform &nbsp;·&nbsp; Kubernetes &nbsp;·&nbsp; CI/CD
+A three-tier Azure platform provisioned as code with Terraform and shipped through Azure DevOps pipelines, with security, quality, cost and approval controls built into every release.
 
-**I make infrastructure boring in the right way.**<br/>
-No manual clicks. No "it works on my machine." Everything reproducible, everything in code.
+![Azure](https://img.shields.io/badge/Cloud-Microsoft%20Azure-0078D4?logo=microsoftazure&logoColor=white)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-844FBA?logo=terraform&logoColor=white)
+![Azure DevOps](https://img.shields.io/badge/CI%2FCD-Azure%20DevOps-0078D7?logo=azuredevops&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![SonarQube](https://img.shields.io/badge/Quality-SonarQube-4E9BCD?logo=sonarqubeserver&logoColor=white)
+![Liquibase](https://img.shields.io/badge/Migrations-Liquibase-2962FF?logo=liquibase&logoColor=white)
 
-<br/>
+[Architecture](#-3-architecture-diagram) · [Traffic flow](#-4-high-level-architecture-and-traffic-flow) · [CI/CD](#-8-infrastructure-cicd-pipeline) · [My role](#-14-my-devsecops-role-and-responsibilities)
 
-[![LinkedIn](https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/aniket484)
-[![Email](https://img.shields.io/badge/EMAIL-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:aniketkmr484@gmail.com)
-[![Projects](https://img.shields.io/badge/FEATURED%20PROJECTS-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)](#-featured-projects)
-[![Open to work](https://img.shields.io/badge/OPEN%20TO%20WORK-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white)](#-lets-talk)
+</div>
 
-<img src="https://komarev.com/ghpvc/?username=aniket-devop&label=Profile%20Views&color=0e75b6&style=flat" alt="profile views"/>
+> [!NOTE]
+> The application code was written by the wider development team. This repository documents the platform and the delivery pipelines from a DevSecOps point of view. My own contribution is covered in [section 14](#-14-my-devsecops-role-and-responsibilities).
 
-<br/>
+---
 
-| 🧑‍💻 Experience | ☁️ Primary Cloud | 🏗️ IaC | ☸️ Orchestration | 📍 Location |
+## ✨ Key Highlights
+
+| | |
+|---|---|
+| 🧱 **Infrastructure as Code** | Azure Landing Zone built with modular Terraform: reusable child modules plus per-environment configuration |
+| 🛡️ **Security built in** | WAF and TLS termination at the edge, subnet segmentation, private endpoints for PostgreSQL, Key Vault for secrets, Bastion for admin access |
+| 🔍 **Shift-left checks** | tfsec, TFLint, Terraform validation and Infracost run before any infrastructure change is applied |
+| ✋ **Controlled releases** | Plan review with manual approval, and approval gates between Dev, Test and Prod |
+| 🧩 **Independent pipelines** | Infrastructure CI/CD is separate from application CI/CD, and the app has its own frontend, backend and database pipelines |
+| 🗄️ **Versioned schema changes** | Database changes go out through Liquibase in a dedicated pipeline |
+
+<div align="center">
+
+| 3 | 3 | 4 | 4 | 2 |
 |:---:|:---:|:---:|:---:|:---:|
-| **2 Years** | **Azure** | **Terraform** | **Kubernetes / AKS** | **Bengaluru, India** |
+| environments<br>Dev, Test, Prod | application pipelines<br>frontend, backend, database | subnets<br>frontend, backend, database, Bastion | automated IaC checks<br>validate, tfsec, TFLint, Infracost | approval points<br>before apply, between environments |
 
 </div>
-
-<br/>
-
-## ⚡ Skills
-
-<table>
-<tr>
-<td width="170"><b>☁️ Cloud & IaC</b></td>
-<td><img src="https://skillicons.dev/icons?i=azure,aws,terraform" alt="Cloud and IaC"/></td>
-</tr>
-<tr>
-<td><b>📦 Containers & GitOps</b></td>
-<td>
-<img src="https://skillicons.dev/icons?i=docker,kubernetes" alt="Containers"/>
-<img src="https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white" alt="Helm" align="top"/>
-<img src="https://img.shields.io/badge/ArgoCD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white" alt="ArgoCD" align="top"/>
-</td>
-</tr>
-<tr>
-<td><b>🚀 CI/CD & Security</b></td>
-<td>
-<img src="https://skillicons.dev/icons?i=githubactions,git,github" alt="CI/CD"/>
-<img src="https://img.shields.io/badge/Azure_DevOps-0078D7?style=for-the-badge&logo=azuredevops&logoColor=white" alt="Azure DevOps" align="top"/>
-<img src="https://img.shields.io/badge/Trivy-1904DA?style=for-the-badge&logo=aqua&logoColor=white" alt="Trivy" align="top"/>
-</td>
-</tr>
-<tr>
-<td><b>📊 Monitoring</b></td>
-<td><img src="https://skillicons.dev/icons?i=prometheus,grafana" alt="Monitoring"/></td>
-</tr>
-<tr>
-<td><b>💻 Languages & OS</b></td>
-<td><img src="https://skillicons.dev/icons?i=python,bash,linux,fastapi,react,postgres" alt="Languages"/></td>
-</tr>
-</table>
-
-<sub>🔐 IaC security scanning: TFLint · TFSec · Checkov &nbsp;|&nbsp; ☁️ Azure is my primary cloud; AWS is hands-on project experience.</sub>
-
-<br/>
-
-## 📊 GitHub at a Glance
-
-<div align="center">
-
-<img src="assets/stats.svg" alt="GitHub stats" width="100%"/>
-
-<br/><br/>
-
-<img src="https://streak-stats.demolab.com/?user=aniket-devop&hide_border=true&theme=dark&background=0D1117&ring=38BDF8&fire=22D3A6&currStreakLabel=38BDF8&sideLabels=9CC9FF&dates=6E8FB8" alt="GitHub streak"/>
-
-</div>
-
-<br/>
-
-## 🎬 Live Demo: a real AKS cluster, not a screenshot
-
-Most portfolios show you code. This one shows a **live AKS cluster serving real traffic**: 27 simulated industrial assets streaming telemetry every 5 seconds into a dashboard with 3D digital twins and real-time health scoring.
-
-https://github.com/aniket-devop/axion-cloud-infrastructure/raw/main/docs/demo/axion-deployment-demo.mp4
-
-**[→ Read the full write-up](#1-axion-intelligence-platform)** · Terraform · AKS · ACR · FastAPI · React · PostgreSQL · end-to-end on Azure
-
-<br/>
-
-## 👨‍💻 About Me
-
-I'm **Aniket Kumar**, a DevOps Engineer with **2 years of hands-on experience** in Azure infrastructure, Terraform, CI/CD automation, containerized deployments, Kubernetes, and DevSecOps.
-
-My day job is Azure and pipelines. My own time goes into projects I build to actually run, not just to demo, because I'd rather find out where a design breaks on my own dime than on a client's.
-
-- 🔧 DevOps Engineer @ **DevOps Insiders**
-- ☁️ Azure provisioning and automation with **Terraform**
-- ☸️ Containerized deployments with **Docker, Kubernetes, AKS, Helm**
-- 🚀 CI/CD with **GitHub Actions** and **Azure DevOps**
-- 🔐 DevSecOps and IaC security with **Trivy, TFLint, TFSec, Checkov**
-- 📊 Observability with **Prometheus and Grafana**
-- 🔄 GitOps with **ArgoCD** (personal projects)
-- 🌱 Hands-on **AWS** infrastructure project with Terraform
-- 🎓 BCA, Chandigarh Group of Colleges, Mohali
-
-<br/>
-
-## 💼 Experience
-
-**DevOps Engineer · DevOps Insiders**
-
-- Provision and manage Azure infrastructure with Terraform: resource groups, virtual networks, and Azure Kubernetes Service (AKS)
-- Build and maintain CI/CD pipelines in GitHub Actions and Azure DevOps Pipelines to automate build, test, and deployment
-- Containerize applications with Docker and deploy workloads to Kubernetes/AKS using Helm charts
-- Integrate security and IaC scanning into the delivery lifecycle (DevSecOps)
-- Set up monitoring and observability with Prometheus and Grafana
-- Troubleshoot pipeline, infrastructure, and deployment issues across environments
-- Work with developers and QA to keep release cycles smooth and reliable
-
-<br/>
-
-## 🏗️ Featured Projects
-
-| # | Project | What it does | Stack |
-|:-:|---|---|---|
-| 1 | **[Axion Intelligence Platform](#1-axion-intelligence-platform)** ⭐ | Industrial IoT telemetry platform, 27 simulated assets streaming live data, deployed end-to-end on AKS | Terraform, AKS, ACR, FastAPI, React, PostgreSQL |
-| 2 | [GitOps CI/CD Pipeline](#2-gitops-cicd-pipeline) | CI builds, scans and publishes an image; ArgoCD reconciles the cluster; rollback is a pure Git operation | GitHub Actions, Trivy, GHCR, Helm, ArgoCD, Kind |
-| 3 | [Azure Network Foundation](#3-azure-network-foundation) | Hub-and-spoke network: Firewall, Bastion, deny-by-default NSGs, RBAC-scoped Key Vault | Terraform, Azure Firewall, Bastion, Key Vault |
-| 4 | [AWS Landing Network](#4-aws-landing-network) | Multi-AZ VPC, ALB, private EC2, locked remote Terraform state | Terraform, VPC, ALB, IAM, S3, DynamoDB |
-| 5 | [Airflow Observability Pipeline](#5-airflow-observability-pipeline) | Airflow on LocalExecutor, instrumented StatsD → Prometheus → Grafana | Docker Compose, Airflow, PostgreSQL, Prometheus, Grafana |
-
-<br/>
 
 ---
 
-## 1. Axion Intelligence Platform
+## 📑 Table of Contents
 
-[![Repo](https://img.shields.io/badge/REPO-axion--cloud--infrastructure-181717?style=for-the-badge&logo=github)](https://github.com/aniket-devop/axion-cloud-infrastructure)
+1. [Project Overview](#-1-project-overview)
+2. [Business Problem and Solution](#-2-business-problem-and-solution)
+3. [Architecture Diagram](#-3-architecture-diagram)
+4. [High-Level Architecture and Traffic Flow](#-4-high-level-architecture-and-traffic-flow)
+5. [Azure Landing Zone and Network Design](#-5-azure-landing-zone-and-network-design)
+6. [Security and Access Management](#-6-security-and-access-management)
+7. [Terraform Repository Structure](#-7-terraform-repository-structure)
+8. [Infrastructure CI/CD Pipeline](#-8-infrastructure-cicd-pipeline)
+9. [Terraform Security, Validation and Cost Estimation](#-9-terraform-security-validation-and-cost-estimation)
+10. [Application CI/CD Pipeline](#-10-application-cicd-pipeline)
+11. [Dev, Test and Prod Promotion Strategy](#-11-dev-test-and-prod-promotion-strategy)
+12. [Database Migration with Liquibase](#-12-database-migration-with-liquibase)
+13. [Monitoring and Alerting](#-13-monitoring-and-alerting)
+14. [My DevSecOps Role and Responsibilities](#-14-my-devsecops-role-and-responsibilities)
+15. [Technology Stack](#-15-technology-stack)
+16. [Setup and Deployment Guide](#-16-setup-and-deployment-guide)
+17. [Validation and Troubleshooting](#-17-validation-and-troubleshooting)
+18. [Cleanup and Cost Considerations](#-18-cleanup-and-cost-considerations)
 
-![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
-![Azure](https://img.shields.io/badge/AKS%20%2F%20ACR-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+---
+
+## 🚀 1. Project Overview
+
+This project is an Azure-hosted, three-tier industrial IoT monitoring and alerting application for a customer that runs several petroleum refineries.
+
+IoT devices on motors and pumps send operational metrics to **Azure Event Hubs**. The application processes that data, shows it on monitoring dashboards, and raises an alert when a reading goes past its threshold.
+
+My part was the platform and the delivery around it:
+
+- 🧱 **Platform:** designing the Azure Landing Zone and provisioning it with Terraform.
+- 🔄 **Delivery:** building Azure DevOps pipelines that ship infrastructure and application through Dev, Test and Prod, with automated security, quality and cost checks and manual approvals.
+
+Infrastructure and application releases run in separate pipelines, so an application release never has to wait on an infrastructure change, and the other way round.
+
+```mermaid
+flowchart LR
+    subgraph INFRA[Infrastructure CI/CD]
+        direction LR
+        T[Terraform code] --> IP[Validate, scan,<br/>cost, plan]
+        IP --> IA{Manual<br/>approval}
+        IA --> AZ[Azure<br/>Landing Zone]
+    end
+
+    subgraph APP[Application CI/CD]
+        direction LR
+        FEP[Frontend]
+        BEP[Backend]
+        DBP[Database<br/>Liquibase]
+    end
+
+    FEP & BEP & DBP --> ENV[Dev → Test → Prod<br/>approval gates]
+    AZ -.hosts.-> ENV
+
+    classDef infra fill:#e8f1fb,stroke:#0078D4,color:#003a70;
+    classDef app fill:#f1eafa,stroke:#844FBA,color:#3d1f66;
+    classDef gate fill:#fff4d6,stroke:#d19a00,color:#5c4300;
+    class T,IP,AZ infra;
+    class FEP,BEP,DBP,ENV app;
+    class IA gate;
+```
+
+---
+
+## 🎯 2. Business Problem and Solution
+
+### The problem
+
+Motors and pumps are critical equipment in a refinery. A temperature that keeps climbing, for example, can point to a fault that is still developing. Operators need to see the condition of equipment across several sites, and they need to be told quickly when something looks wrong.
+
+### The solution
+
+| Need | How the platform handles it |
+|---|---|
+| 📡 Collect equipment metrics | IoT devices send data to Azure Event Hubs |
+| 📊 See equipment condition | The application processes the data and shows it on monitoring dashboards |
+| 🚨 Act on abnormal readings | Alerts go to operators when a metric crosses a threshold, such as motor temperature above **100 °C** |
+| 🔒 Run it safely | A segmented Azure network with layered controls, deployed through repeatable, reviewed and approved pipelines |
+
+---
+
+## 🗺️ 3. Architecture Diagram
+
+<div align="center">
+
+![Azure architecture diagram](docs/images/architecture-diagram.png)
+
+</div>
+
+---
+
+## 🔀 4. High-Level Architecture and Traffic Flow
+
+The platform is a classic three-tier design: presentation, application and data. Each tier sits in its own subnets of one Azure Virtual Network.
+
+```mermaid
+flowchart LR
+    U([Operators]) -->|HTTPS| AG[Application Gateway<br/>TLS + WAF]
+    AG --> FE[2 x Frontend VMs]
+    FE --> ILB[Internal<br/>Load Balancer]
+    ILB --> BE[2 x Backend VMs]
+    BE -->|private endpoint| DB[(PostgreSQL<br/>Flexible Server)]
+    BE -.-> KV[Key Vault]
+    ADM([Administrators]) -->|Bastion| FE
+    ADM -->|Bastion| BE
+
+    classDef edge fill:#fde8e8,stroke:#c53030,color:#5a1313;
+    classDef tier fill:#e8f1fb,stroke:#0078D4,color:#003a70;
+    classDef data fill:#e6f6ec,stroke:#2f855a,color:#14452f;
+    class AG edge;
+    class FE,ILB,BE tier;
+    class DB,KV data;
+```
+
+### 🌐 Request flow
+
+1. Users, such as refinery operators, reach the application through **Azure Application Gateway**. It terminates SSL/TLS and inspects traffic with the **Web Application Firewall (WAF)**.
+2. Application Gateway passes allowed requests to the two frontend VMs.
+3. The frontend calls the backend through an **Internal Load Balancer**, which spreads the load over the two backend VMs.
+4. The backend talks to **Azure Database for PostgreSQL Flexible Server** over private endpoints, so database traffic never leaves the private network.
+5. Secrets are kept in **Azure Key Vault**.
+
+### 📡 Data ingestion flow
+
+IoT devices on motors and pumps publish metrics to **Azure Event Hubs**. The application processes them, updates the dashboard and checks alert thresholds.
+
+### 🔑 Administrative access
+
+Administrators connect to the VMs through **Azure Bastion**. No management ports are open to the internet.
+
+---
+
+## 🧱 5. Azure Landing Zone and Network Design
+
+The whole Landing Zone is provisioned with Terraform. The network is split into dedicated subnets, so each tier has one job and limited exposure.
+
+| Subnet | Purpose | Components |
+|---|---|---|
+| 🟦 **Frontend** | Public entry point, presentation tier | Application Gateway (TLS, WAF), two frontend VMs |
+| 🟩 **Backend** | Application tier, not reachable from the internet | Internal Load Balancer, two backend VMs |
+| 🟧 **Database** | Data tier | PostgreSQL Flexible Server via private endpoints |
+| 🟪 **Bastion** | Administrative access | Azure Bastion |
+
+### 🚧 Network boundaries
+
+| Boundary | Behaviour |
+|---|---|
+| Internet → platform | Traffic enters only through Application Gateway, where TLS ends and the WAF inspects requests |
+| Frontend → backend | Goes through an Internal Load Balancer, so the backend is only reachable from inside the virtual network |
+| Backend → database | Uses private endpoints, keeping PostgreSQL traffic on the private network |
+| Admin → VMs | Goes through Azure Bastion in its own subnet |
+
+---
+
+## 🛡️ 6. Security and Access Management
+
+Security is layered: at the network edge, inside the network, at the data tier, and in the delivery pipeline.
+
+| Layer | Control | Purpose |
+|---|---|---|
+| 🌐 Edge | Application Gateway with WAF | Ends TLS and inspects inbound web traffic |
+| 🧩 Network | Subnet segmentation | Separate frontend, backend, database and Bastion subnets |
+| 🧩 Network | Internal Load Balancer | Keeps backend traffic inside the virtual network |
+| 🗄️ Data | Private endpoints for PostgreSQL | Keeps database connectivity private |
+| 🔑 Access | Azure Bastion | VM administration without public management ports |
+| 🗝️ Secrets | Azure Key Vault | Keeps secrets out of code and pipeline definitions |
+| 🔍 Pipeline | tfsec and TFLint | Catch misconfigurations and quality problems before deployment |
+| 🧪 Pipeline | SonarQube | Code-quality checks on application code |
+| ✋ Process | Manual approval gates | A person signs off before apply and before each promotion |
+
+---
+
+## 📦 7. Terraform Repository Structure
+
+The Terraform code is modular. Reusable **child modules** define each component (networking, compute, database, security), and **environment-specific configuration** provides the values for Dev, Test and Prod. That keeps the environments consistent and avoids copy-pasted code.
+
+Branching is **trunk-based**, with `main` as the trunk.
+
+```text
+.
+├── modules/          Reusable child modules
+├── environments/     Environment-specific configuration
+│   ├── dev/
+│   ├── test/
+│   └── prod/
+└── pipelines/        Azure DevOps pipeline definitions
+```
+
+---
+
+## 🏗️ 8. Infrastructure CI/CD Pipeline
+
+Infrastructure is delivered by Azure DevOps pipelines that are separate from the application pipelines. A change merged to `main` is validated, scanned, costed and planned. It is applied only after someone reviews the plan and approves it.
+
+```mermaid
+flowchart LR
+    A[Merge to<br/>main] --> B[Terraform<br/>validate]
+    B --> C[tfsec +<br/>TFLint]
+    C --> D[Infracost]
+    D --> E[Terraform<br/>plan]
+    E --> F{Review +<br/>approval}
+    F -->|Approved| G[Terraform<br/>apply]
+    F -->|Rejected| H[Revise<br/>change]
+
+    classDef check fill:#e6f6ec,stroke:#2f855a,color:#14452f;
+    classDef gate fill:#fff4d6,stroke:#d19a00,color:#5c4300;
+    classDef deploy fill:#e8f1fb,stroke:#0078D4,color:#003a70;
+    classDef stop fill:#fde8e8,stroke:#c53030,color:#5a1313;
+    class B,C,D,E check;
+    class F gate;
+    class G deploy;
+    class H stop;
+```
+
+| Stage | What happens |
+|---|---|
+| ✅ Validate | The Terraform configuration is validated |
+| 🔍 Scan | tfsec and TFLint analyse the code |
+| 💰 Cost estimate | Infracost estimates the cost of the change |
+| 📋 Plan | Terraform produces an execution plan |
+| ✋ Review and approve | The plan is reviewed and explicitly approved |
+| 🚀 Apply | Terraform applies the approved plan |
+
+---
+
+## 🔐 9. Terraform Security, Validation and Cost Estimation
+
+| Tool / step | Role in the pipeline |
+|---|---|
+| ✅ **Terraform validate** | Confirms the configuration is syntactically valid and consistent |
+| 🛡️ **tfsec** | Static security analysis that flags likely misconfigurations |
+| 🧹 **TFLint** | Linting for code quality, best practice and likely errors |
+| 💰 **Infracost** | Shows the cost impact of a change while it is being reviewed |
+| 📋 **Plan review** | Engineers see exactly what will be created, changed or destroyed |
+| ✋ **Manual approval** | The gate between plan and apply, so nothing is applied without sign-off |
+
+> [!TIP]
+> All of these run before apply. Security, quality and cost problems show up at the earliest point, when they are cheapest to fix.
+
+---
+
+## 🧑‍💻 10. Application CI/CD Pipeline
+
+Frontend, backend and database each have their own pipeline. Each one can be built, checked and released without touching the others, and without waiting for an infrastructure change.
+
+| Pipeline | Scope |
+|---|---|
+| 🖥️ **Frontend** | Build, quality check and deployment to the frontend VMs |
+| ⚙️ **Backend** | Build, quality check and deployment to the backend VMs |
+| 🗄️ **Database** | Schema changes with Liquibase ([section 12](#-12-database-migration-with-liquibase)) |
+
+Shared by all three:
+
+- 🧪 **SonarQube** code-quality checks
+- 📦 **Azure Pipeline Artifacts** for build output, so the artifact that was tested is the one that gets promoted
+- 🚦 Deployment through Dev, Test and Prod with manual approval gates ([section 11](#-11-dev-test-and-prod-promotion-strategy))
+
+### Infrastructure vs. application CI/CD
+
+| | 🏗️ Infrastructure CI/CD | 🧑‍💻 Application CI/CD |
+|---|---|---|
+| **Delivers** | Azure resources (Landing Zone) via Terraform | Frontend, backend and database changes |
+| **Checks** | Validate, tfsec, TFLint, Infracost, plan review | SonarQube |
+| **Output** | Applied infrastructure | Pipeline Artifacts deployed to environments |
+| **Gate** | Manual approval before apply | Manual approval before each promotion |
+
+---
+
+## 🚦 11. Dev, Test and Prod Promotion Strategy
+
+Infrastructure and applications both move through three environments.
+
+```mermaid
+flowchart LR
+    Build[Build and publish<br/>artifact] --> Dev[🟢 Dev]
+    Dev --> G1{Approval}
+    G1 --> Test[🟡 Test]
+    Test --> G2{Approval}
+    G2 --> Prod[🔴 Prod]
+
+    classDef gate fill:#fff4d6,stroke:#d19a00,color:#5c4300;
+    class G1,G2 gate;
+```
+
+- 📦 A change is built once, and the same artifact is promoted. It is not rebuilt for each environment.
+- ✋ Manual approval gates control movement between environments, so a release reaches Test and Prod only after sign-off.
+- ⚙️ Differences between environments come from configuration, not from separate code.
+
+---
+
+## 🗄️ 12. Database Migration with Liquibase
+
+Schema changes are handled by **Liquibase** and released through a dedicated database pipeline. The changes are version-controlled and reviewable, and they are applied in the same order in Dev, Test and Prod, behind the same approval gates as the other pipelines.
+
+The target is **Azure Database for PostgreSQL Flexible Server**, reached through private endpoints.
+
+---
+
+## 📈 13. Monitoring and Alerting
+
+```mermaid
+flowchart LR
+    D[IoT devices<br/>motors and pumps] --> E[Azure<br/>Event Hubs]
+    E --> A[Application<br/>processing]
+    A --> M[Monitoring<br/>dashboard]
+    A --> T{Threshold exceeded?<br/>e.g. motor temp > 100 °C}
+    T -->|Yes| N[Alert to<br/>operators]
+    N --> O[Operators investigate<br/>and act]
+
+    classDef alert fill:#fde8e8,stroke:#c53030,color:#5a1313;
+    class N,O alert;
+```
+
+1. IoT devices send metrics to Azure Event Hubs.
+2. The application processes the incoming data.
+3. Metrics show up on the monitoring dashboard.
+4. When a metric passes its threshold, an alert goes to the refinery operators.
+5. Operators investigate and take action.
+
+---
+
+## 🧑‍🔧 14. My DevSecOps Role and Responsibilities
+
+I was the DevSecOps engineer on this project. The development team built the application; I was responsible for the Azure platform and the delivery pipelines around it.
+
+| Area | What I delivered |
+|---|---|
+| ☁️ **Landing Zone** | Designed the Azure Landing Zone and provisioned it with Terraform |
+| 📦 **Terraform design** | Structured the repository into reusable child modules and per-environment configuration |
+| 🌳 **Branching** | Applied a trunk-based strategy on `main` |
+| 🔄 **Pipelines** | Built Azure DevOps pipelines for Terraform and application CI/CD |
+| 🔍 **IaC security and quality** | Integrated tfsec and TFLint |
+| 💰 **Validation and cost** | Integrated Terraform validation and Infracost |
+| ✋ **Controlled apply** | Set up the plan review, manual approval and apply stages |
+| 🧩 **Application pipelines** | Created separate pipelines for frontend, backend and database |
+| 🧪 **Code quality** | Added SonarQube checks and used Azure Pipeline Artifacts |
+| 🚦 **Promotion** | Set up deployments across Dev, Test and Prod with manual approval gates |
+| 🗄️ **Schema changes** | Used Liquibase for database migrations |
+
+---
+
+## 🧰 15. Technology Stack
+
+<div align="center">
+
+![Azure](https://img.shields.io/badge/Azure-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-844FBA?style=flat-square&logo=terraform&logoColor=white)
+![Azure DevOps](https://img.shields.io/badge/Azure%20DevOps-0078D7?style=flat-square&logo=azuredevops&logoColor=white)
+![tfsec](https://img.shields.io/badge/tfsec-1F2937?style=flat-square)
+![TFLint](https://img.shields.io/badge/TFLint-1F2937?style=flat-square)
+![Infracost](https://img.shields.io/badge/Infracost-1F2937?style=flat-square)
+![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?style=flat-square&logo=sonarqubeserver&logoColor=white)
+![Liquibase](https://img.shields.io/badge/Liquibase-2962FF?style=flat-square&logo=liquibase&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-
-A production-style industrial IoT condition-monitoring platform. 27 simulated assets (pumps, motors, compressors) across five refinery sites stream temperature, vibration, and current readings every 5 seconds. Terraform provisions the Azure footprint, GitHub Actions builds and pushes images to ACR, and Kubernetes manifests roll the workloads onto AKS, with a live dashboard featuring 3D digital twins, trend charts, and real-time health scoring.
-
-<div align="center">
-<img src="https://raw.githubusercontent.com/aniket-devop/axion-cloud-infrastructure/main/docs/architecture.png" width="90%" alt="Axion architecture"/>
-<br/>
-<sub>Terraform → Azure footprint · GitHub Actions → ACR · Kubernetes manifests → AKS · LoadBalancer services → UI and API</sub>
-</div>
-
-<details>
-<summary><b>⚙️ Key engineering decisions · 📚 honest scope · 🚀 roadmap</b></summary>
-<br/>
-
-**Key decisions**
-- Split ingestion (write-heavy, latency-sensitive) and query (aggregation + health scoring) into separate services so each scales independently
-- Terraform `for_each` over an `environments` map: one module tree renders dev/staging/prod without duplicated root configs
-- Remote state bootstrapped in a separate `state-infrastructure/` stack, solving the chicken-and-egg backend problem cleanly
-- `admin_enabled = false` on ACR, forcing identity-based auth instead of shared admin credentials
-- Health scoring computed server-side (SQL/Python), keeping the dashboard a thin client with consistent logic across consumers
-
-**Honest scope**
-A portfolio build with intentional, documented gaps: database credentials are currently inline rather than in Key Vault-backed Secrets, storage uses `emptyDir` instead of a PersistentVolumeClaim, and there's no Ingress/TLS yet. These are listed openly in the repo's roadmap.
-
-**Run it**
-```bash
-cd terraform && terraform init && terraform apply
-kubectl apply -f k8s/
-```
-
-**Roadmap**
-- Move database credentials to Kubernetes Secrets backed by Azure Key Vault
-- Replace `emptyDir` with a PersistentVolumeClaim on Azure Disk
-- Replace dual LoadBalancers with a single Ingress (NGINX + cert-manager) for TLS
-- Add HorizontalPodAutoscalers and resource requests/limits on all deployments
-
-</details>
-
-<br/>
-
----
-
-## 2. GitOps CI/CD Pipeline
-
-[![App repo](https://img.shields.io/badge/APP-gitops--ci--pipeline-181717?style=for-the-badge&logo=github)](https://github.com/aniket-devop/gitops-ci-pipeline)
-[![GitOps repo](https://img.shields.io/badge/GITOPS-gitops--kubernetes--config-181717?style=for-the-badge&logo=github)](https://github.com/aniket-devop/gitops-kubernetes-config)
-
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
-![Trivy](https://img.shields.io/badge/Trivy-1904DA?style=flat-square&logo=aqua&logoColor=white)
-![Helm](https://img.shields.io/badge/Helm-0F1689?style=flat-square&logo=helm&logoColor=white)
-![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=flat-square&logo=argo&logoColor=white)
-
-A two-repository GitOps setup: one repo owns the FastAPI app and its CI pipeline, the other owns the desired Kubernetes state that ArgoCD reconciles against. **CI never touches the cluster.** The boundary is enforced by design, not just documented.
-
-<div align="center">
-<img src="https://raw.githubusercontent.com/aniket-devop/gitops-kubernetes-config/main/screenshots/architecture-diagram.png" width="90%" alt="GitOps architecture"/>
-</div>
-
-```
-Developer → gitops-ci-pipeline → GitHub Actions → pytest → Docker build
-   → Trivy CRITICAL scan → GHCR → Git commit to gitops-kubernetes-config
-   → ArgoCD → Kind Kubernetes
-```
-
-**Highlights**
-- 🔒 Trivy `CRITICAL` gate hard-fails the job before an image reaches GHCR
-- 🔒 Non-root container (`appuser`) on a minimal `python:3.12-alpine` base
-- 🔒 Two separately scoped credentials: `GITHUB_TOKEN` for GHCR, a distinct `GITOPS_REPO_TOKEN` for the cross-repo commit
-- 🔄 **Rollback is pure Git**: a `git revert` on the image-tag commit made ArgoCD's `selfHeal` restore the previous version. No `kubectl rollout undo`, no ArgoCD CLI
-
-<details>
-<summary><b>🔁 CI/CD flow · 📚 honest scope · 🚀 roadmap</b></summary>
-<br/>
-
-**CI/CD**
-On every push to `main`: checkout → `pytest` → tag image with short commit SHA → Docker build → Trivy scan (`severity: CRITICAL`) → push to GHCR → commit the new tag to `gitops-kubernetes-config`. ArgoCD (`automated`, `prune: true`, `selfHeal: true`) picks up the commit and reconciles the Kind cluster. GitHub Actions never runs `kubectl` or holds cluster credentials.
-
-**Useful commands**
-```bash
-kubectl scale deployment gitops-demo --replicas=5 -n gitops-demo-dev
-kubectl get pods -n gitops-demo-dev -w
-argocd app get gitops-demo-dev
-```
-
-**Honest scope**
-Runs on a local Kind cluster, so no production traffic, uptime, or scale claims. Only `dev` is fully automated; `staging` exists but needs manual sync with no promotion path yet.
-
-**Roadmap**
-- `dev` → `staging` promotion workflow
-- Move to a managed Kubernetes service (e.g. AKS) and registry (e.g. ACR)
-- Ingress + TLS, Horizontal Pod Autoscaler, NetworkPolicy/RBAC
-
-</details>
-
-<br/>
-
----
-
-## 3. Azure Network Foundation
-
-[![Repo](https://img.shields.io/badge/REPO-azure--network--foundation--terraform-181717?style=for-the-badge&logo=github)](https://github.com/aniket-devop/azure-network-foundation-terraform)
-
-![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
-![Azure Firewall](https://img.shields.io/badge/Azure%20Firewall-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
-![Bastion](https://img.shields.io/badge/Bastion-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
+![Event Hubs](https://img.shields.io/badge/Event%20Hubs-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
 ![Key Vault](https://img.shields.io/badge/Key%20Vault-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Bastion](https://img.shields.io/badge/Bastion-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
 
-A Terraform-built Azure networking and security foundation: a hub VNet (Firewall + Bastion), a spoke VNet with a deny-by-default NSG and an AKS-designated subnet, egress forced through the Firewall via a route table, an RBAC-authorized Key Vault, and role assignments scoped to the resource group rather than the subscription. Deployable to `dev` and `prod` from one DRY Terraform configuration.
-
-<div align="center">
-<img src="https://raw.githubusercontent.com/aniket-devop/azure-network-foundation-terraform/main/diagrams/architecture.png" width="90%" alt="Azure network foundation architecture"/>
 </div>
 
-**Highlights**
-- 🔐 RBAC scoped to the **resource group**, not the subscription, to limit blast radius
-- 🔐 Explicit `DenyAllInbound` NSG rule instead of relying on Azure's implicit defaults
-- 🔐 **Azure Bastion** instead of a jump box, so no VM carries a public IP
-- 🔐 Route table forces all AKS-subnet egress through the Firewall's private IP, so its allow-rules are actually enforced
-
-<details>
-<summary><b>⚙️ Decisions · 🔁 CI · 📚 honest scope · 🚀 roadmap</b></summary>
-<br/>
-
-**Decision:** Key Vault is secured via **RBAC + network ACL** (not a Private Endpoint), a deliberate, documented trade-off for this project's scope.
-
-**CI:** `terraform-ci.yml` runs `terraform fmt -check`, `terraform init -backend=false`, and `terraform validate` on every PR and push to `main`. No `plan`/`apply` automation or security scanning yet.
-
-```bash
-cd environments/dev
-terraform init
-terraform validate
-```
-
-**Honest scope:** Personal, sandbox-scale project. Not a Cloud Adoption Framework landing zone (no management groups, no Azure Policy, no multi-subscription governance), and no compute is deployed yet. `dev` and `prod` are `.tfvars`-differentiated instances of the same modules.
-
-**Roadmap**
-- Post `terraform plan` output as a PR comment before adding `apply` automation
-- Add `terraform test` coverage
-- Deploy an AKS cluster into the prepared `snet-aks` subnet
-
-</details>
-
-<br/>
+| Area | Technology |
+|---|---|
+| ☁️ Cloud platform | Microsoft Azure |
+| 🏗️ Infrastructure as Code | Terraform |
+| 🔄 CI/CD | Azure DevOps Pipelines, Azure Pipeline Artifacts |
+| 🛡️ IaC security and quality | tfsec, TFLint, Terraform validate |
+| 💰 Cost estimation | Infracost |
+| 🧪 Code quality | SonarQube |
+| 🗄️ Database migrations | Liquibase |
+| 🌐 Networking and edge | Virtual Network, Application Gateway (TLS, WAF), Internal Load Balancer |
+| 💻 Compute | Azure Virtual Machines (frontend and backend tiers) |
+| 🐘 Data | Azure Database for PostgreSQL Flexible Server (private endpoints) |
+| 🔑 Secrets and access | Azure Key Vault, Azure Bastion |
+| 📡 Data ingestion | Azure Event Hubs |
+| 🌳 Branching model | Trunk-based development (`main`) |
 
 ---
 
-## 4. AWS Landing Network
+## 🛠️ 16. Setup and Deployment Guide
 
-[![Repo](https://img.shields.io/badge/REPO-aws--terraform--landing--zone--project-181717?style=for-the-badge&logo=github)](https://github.com/aniket-devop/aws-terraform-landing-zone-project)
+Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 
-![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
-![AWS](https://img.shields.io/badge/VPC%20%2F%20EC2%20%2F%20ALB-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
-![S3](https://img.shields.io/badge/S3%20%2B%20DynamoDB-569A31?style=flat-square&logo=amazons3&logoColor=white)
+### ✅ Prerequisites
 
-A self-driven project applying the same private-compute networking pattern as the Azure project, this time in AWS: multi-AZ VPC, ALB-fronted EC2 in private subnets, and locked remote Terraform state. AWS is a secondary, personal-project skill alongside Azure as the primary professional cloud.
+- An Azure subscription with permission to deploy the Landing Zone
+- An Azure DevOps organisation and project with pipeline permissions
+- A service connection from Azure DevOps to Azure
+- A remote Terraform state backend
+- The tools the pipelines use: Terraform, tfsec, TFLint, Infracost, SonarQube, Liquibase
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/aniket-devop/aws-terraform-landing-zone-project/main/diagrams/architecture.png" width="90%" alt="AWS architecture"/>
-</div>
+### 📋 Deployment order
 
-**How it works:** one VPC (`10.0.0.0/16`) across two AZs, each with a public subnet (ALB + NAT Gateway) and a private subnet (EC2 + Security Group + IAM role). The Internet Gateway only reaches public subnets, EC2 security groups accept traffic only from the ALB, outbound-only access goes through the NAT Gateway, and Terraform state lives in S3 with DynamoDB locking.
-
-<details>
-<summary><b>🔁 CI · 🚀 roadmap</b></summary>
-<br/>
-
-**CI:** every PR runs `terraform fmt -check` → `terraform validate` → `terraform plan` via GitHub Actions before anything is applied.
-
-```bash
-terraform init
-terraform plan
-terraform apply
-```
-
-**Roadmap**
-- HTTPS listener on the ALB with an ACM certificate
-- Auto Scaling Group instead of a static EC2 instance
-- CloudWatch alarms and a basic monitoring dashboard
-
-</details>
-
-<br/>
+1. **Infrastructure.** Merge to `main` and run the infrastructure pipeline. Check the validation, scan, cost and plan output, then approve to apply.
+2. **Database.** Run the database pipeline to apply the Liquibase changes.
+3. **Backend and frontend.** Run the backend and frontend pipelines to deploy the application artifacts.
+4. **Promote.** Move the release through Dev, Test and Prod, approving at each gate.
 
 ---
 
-## 5. Airflow Observability Pipeline
-
-[![Repo](https://img.shields.io/badge/REPO-airflow--docker--grafana--monitoring-181717?style=for-the-badge&logo=github)](https://github.com/aniket-devop/airflow-docker-grafana-monitoring)
-
-![Airflow](https://img.shields.io/badge/Airflow-017CEE?style=flat-square&logo=apacheairflow&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker%20Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white)
-
-A containerized Apache Airflow deployment, delivered as a freelance client project and re-architected from Airflow's official CeleryExecutor/Redis template into a single-node **LocalExecutor + PostgreSQL** setup. Instrumented with a StatsD → Prometheus → Grafana metrics pipeline and orchestrated with a single `docker compose up`.
-
-<div align="center">
-<img src="https://raw.githubusercontent.com/aniket-devop/airflow-docker-grafana-monitoring/main/assets/architecture-diagram.png" width="90%" alt="Airflow observability architecture"/>
-</div>
-
-**Monitoring flow:** Airflow emits StatsD metrics → StatsD Exporter republishes in Prometheus format → Prometheus scrapes every 15s → Grafana added as a data source.
+## 🔎 17. Validation and Troubleshooting
 
 <details>
-<summary><b>⚙️ Decisions · 📚 honest scope · 🚀 roadmap</b></summary>
-<br/>
+<summary><b>✔️ Post-release checklist</b></summary>
 
-**Components:** Airflow API Server, Scheduler (runs tasks directly via LocalExecutor), DAG Processor, Triggerer, PostgreSQL 16, StatsD Exporter, Prometheus, Grafana, all on one Docker Compose network.
+<br>
 
-**Decisions**
-- Swapped CeleryExecutor + Redis for **LocalExecutor**, removing a message broker and worker fleet with no benefit at single-node scale, while keeping health checks, dependency ordering, and persistent metadata storage
-- Bridged metrics via **StatsD → Prometheus** since Airflow doesn't expose a native `/metrics` endpoint in this configuration
-
-**Honest scope:** a working single-node deployment with a verified metrics pipeline, not a distributed production platform. No Grafana dashboards or alerting are pre-provisioned, and Prometheus/Grafana have no persistent storage.
-
-```bash
-docker compose up -d
-docker compose ps
-curl http://localhost:8080  # Airflow UI
-```
-
-**Roadmap**
-- Ship a starter Grafana dashboard + Prometheus datasource provisioning
-- Add Alertmanager with basic failure-rate alerts
-- Pin third-party image versions currently tracking `:latest`
+- [ ] The infrastructure pipeline passed validate, tfsec, TFLint and Infracost
+- [ ] The Terraform plan was reviewed and approved before apply
+- [ ] The application is reachable over HTTPS through Application Gateway
+- [ ] Frontend VMs reach the backend through the Internal Load Balancer
+- [ ] Backend VMs connect to PostgreSQL through the private endpoint
+- [ ] Liquibase changes were applied in the target environment
+- [ ] IoT data from Event Hubs appears on the dashboard
+- [ ] A test threshold breach (for example, above 100 °C) triggers an alert
 
 </details>
 
-<br/>
+<details>
+<summary><b>🩺 Troubleshooting guide</b></summary>
+
+<br>
+
+| Symptom | Where to look |
+|---|---|
+| Pipeline fails at a scan stage | tfsec and TFLint findings; fix the issue, or record why it is accepted |
+| Cost estimate higher than expected | Infracost output and the resources in the plan |
+| Application not reachable | Application Gateway listener and TLS config, WAF rules, backend health, network rules |
+| Frontend cannot reach backend | Internal Load Balancer health, backend VM status, rules between subnets |
+| Backend cannot reach database | Private endpoint status, name resolution, network rules |
+| Cannot administer a VM | Bastion configuration and access permissions |
+| No data on the dashboard | Device connectivity to Event Hubs, application event processing |
+| Alerts not received | Threshold configuration and notification channel setup |
+
+</details>
 
 ---
 
-## 🤖 This Profile Maintains Itself
+## 🧹 18. Cleanup and Cost Considerations
 
-The stats card above isn't a third-party widget. It's generated by a small **Node.js script** (`scripts/generate-stats.mjs`) that calls the GitHub API, and a **GitHub Actions workflow** (`.github/workflows/update-stats.yml`) re-runs it daily and commits the result. Same philosophy as everything else here: automated, reproducible, in code.
+### 💰 Cost
 
-<br/>
+Infracost runs in the infrastructure pipeline, so the cost of a change is visible before it is approved. The resources that carry ongoing cost are the VMs, Application Gateway, Azure Bastion, PostgreSQL Flexible Server and Event Hubs. For real numbers, check current Azure pricing and the Infracost output.
 
-## 📬 Let's Talk
+### 🗑️ Cleanup
 
-I'm **open to DevOps / Cloud Engineer roles**, full-time, Bengaluru or remote.
+1. Confirm that the environment and its data can be removed.
+2. Remove the infrastructure through the Terraform pipeline or an approved destroy process.
+3. Check in the Azure portal that the resources are gone.
 
-If any of this is relevant to a role you're hiring for, or you just want to compare notes on Terraform module design, AKS networking, or GitOps patterns, reach out. I read every message.
+> [!WARNING]
+> Destroying Prod should always need explicit approval.
+
+---
 
 <div align="center">
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Message%20me-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/aniket484)
-[![Email](https://img.shields.io/badge/Email-Send%20a%20note-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:aniketkmr484@gmail.com)
+### Aniket Kumar · DevSecOps Engineer
 
-<br/>
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-aniket484-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/aniket484)
+[![GitHub](https://img.shields.io/badge/GitHub-aniket--devop-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/aniket-devop)
 
-**If something here helped or impressed you, a ⭐ on the repos means a lot.**
-
-<sub>Thanks for visiting 💙</sub>
+![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:844FBA,100:0078D4&height=90&section=footer)
 
 </div>
