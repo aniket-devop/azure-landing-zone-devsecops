@@ -1,0 +1,165 @@
+name: Terraform CI (pull request)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "modules/**"
+      - "environments/**"
+      - "policies/**"
+      - "bootstrap/**"
+      - ".github/workflows/**"
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TF_VERSION: "1.9.8"
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  # ---------------------------------------------------------------- 1. lint
+  validate:
+    name: Lint and validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Format check
+        run: terraform fmt -check -recursive -diff
+
+      - name: Validate every root module
+        run: |
+          set -euo pipefail
+          for dir in bootstrap environments/platform environments/landing-zones; do
+            echo "::group::validate $dir"
+            terraform -chdir="$dir" init -backend=false -input=false
+            terraform -chdir="$dir" validate
+            echo "::endgroup::"
+          done
+
+      - uses: terraform-linters/setup-tflint@v4
+
+      - name: TFLint
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          tflint --init
+          tflint --recursive --format compact
+
+  # --------------------------------------------------------------- 2. secrets
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # scan history, not just the tip
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  # ------------------------------------------------------- 3. IaC security scan
+  iac-security:
+    name: IaC security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform
+          config_file: .checkov.yaml
+
+      - name: Trivy (misconfiguration)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          trivyignores: .trivyignore
+
+  # ----------------------------------------------------------------- 4. plan
+  plan:
+    name: Plan (${{ matrix.environment }})
+    needs: [validate, secret-scan, iac-security]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [platform, landing-zones]
+    permissions:
+      id-token: write # OIDC token for Azure login
+      contents: read
+      pull-requests: write # post the plan on the PR
+    env:
+      ARM_USE_OIDC: "true"
+      ARM_USE_AZUREAD_AUTH: "true"
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_CLIENT_ID: ${{ vars.AZURE_PLAN_CLIENT_ID }} # read-only identity
+      ARM_SUBSCRIPTION_ID: ${{ vars.MANAGEMENT_SUBSCRIPTION_ID }}
+      TF_VAR_management_subscription_id: ${{ vars.MANAGEMENT_SUBSCRIPTION_ID }}
+      TF_VAR_connectivity_subscription_id: ${{ vars.CONNECTIVITY_SUBSCRIPTION_ID }}
+      TF_VAR_workload_subscription_id: ${{ vars.WORKLOAD_SUBSCRIPTION_ID }}
+      TF_VAR_state_resource_group_name: ${{ vars.TFSTATE_RESOURCE_GROUP }}
+      TF_VAR_state_storage_account_name: ${{ vars.TFSTATE_STORAGE }}
+      TF_VAR_state_container_name: ${{ vars.TFSTATE_CONTAINER }}
+    defaults:
+      run:
+        working-directory: environments/${{ matrix.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Init
+        run: |
+          terraform init -input=false \
+            -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE }}" \
+            -backend-config="container_name=${{ vars.TFSTATE_CONTAINER }}"
+
+      - name: Plan
+        id: plan
+        run: terraform plan -input=false -no-color -out=tfplan 2>&1 | tee plan.txt
+
+      - name: Comment plan on PR
+        if: always() && steps.plan.outcome != 'skipped'
+        uses: actions/github-script@v7
+        env:
+          ENVIRONMENT: ${{ matrix.environment }}
+          OUTCOME: ${{ steps.plan.outcome }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = `environments/${process.env.ENVIRONMENT}/plan.txt`;
+            let body = fs.existsSync(path) ? fs.readFileSync(path, 'utf8') : '(no plan output)';
+            if (body.length > 60000) body = body.slice(0, 60000) + '\n... truncated ...';
+            const icon = process.env.OUTCOME === 'success' ? 'OK' : 'FAILED';
+            const marker = `<!-- tf-plan-${process.env.ENVIRONMENT} -->`;
+            const comment = `${marker}\n### Terraform plan: \`${process.env.ENVIRONMENT}\` (${icon})\n<details><summary>Show plan</summary>\n\n\`\`\`terraform\n${body}\n\`\`\`\n</details>`;
+
+            const { data: existing } = await github.rest.issues.listComments({
+              ...context.repo, issue_number: context.issue.number,
+            });
+            const previous = existing.find(c => c.body && c.body.includes(marker));
+            if (previous) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: previous.id, body: comment });
+            } else {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body: comment });
+            }

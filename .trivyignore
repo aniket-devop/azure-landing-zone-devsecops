@@ -1,0 +1,2 @@
+# Accepted findings, one ID per line, each with a reason.
+# AVD-AZU-0012  Storage account without network rules: state account is reached from GitHub-hosted runners.

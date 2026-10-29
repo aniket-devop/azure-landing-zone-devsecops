@@ -1,0 +1,120 @@
+name: Terraform Apply (main)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "modules/**"
+      - "environments/**"
+      - "policies/**"
+  workflow_dispatch:
+
+# Never run two applies at once, and never cancel one halfway through.
+concurrency:
+  group: terraform-apply
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  TF_VERSION: "1.9.8"
+  TF_IN_AUTOMATION: "true"
+  ARM_USE_OIDC: "true"
+  ARM_USE_AZUREAD_AUTH: "true"
+  ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+  ARM_CLIENT_ID: ${{ vars.AZURE_APPLY_CLIENT_ID }} # write-capable identity
+  ARM_SUBSCRIPTION_ID: ${{ vars.MANAGEMENT_SUBSCRIPTION_ID }}
+  TF_VAR_management_subscription_id: ${{ vars.MANAGEMENT_SUBSCRIPTION_ID }}
+  TF_VAR_connectivity_subscription_id: ${{ vars.CONNECTIVITY_SUBSCRIPTION_ID }}
+  TF_VAR_workload_subscription_id: ${{ vars.WORKLOAD_SUBSCRIPTION_ID }}
+  TF_VAR_state_resource_group_name: ${{ vars.TFSTATE_RESOURCE_GROUP }}
+  TF_VAR_state_storage_account_name: ${{ vars.TFSTATE_STORAGE }}
+  TF_VAR_state_container_name: ${{ vars.TFSTATE_CONTAINER }}
+
+jobs:
+  platform:
+    name: Apply platform
+    runs-on: ubuntu-latest
+    # The 'production' environment holds the required-reviewers rule: this is the human approval gate.
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: environments/platform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Init
+        run: |
+          terraform init -input=false \
+            -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE }}" \
+            -backend-config="container_name=${{ vars.TFSTATE_CONTAINER }}"
+
+      # Plan again and apply that exact plan file, so what runs is what was reviewed in this run.
+      - name: Plan
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Apply
+        run: terraform apply -input=false tfplan
+
+  landing-zones:
+    name: Apply landing zones
+    needs: platform
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: environments/landing-zones
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Init
+        run: |
+          terraform init -input=false \
+            -backend-config="resource_group_name=${{ vars.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TFSTATE_STORAGE }}" \
+            -backend-config="container_name=${{ vars.TFSTATE_CONTAINER }}"
+
+      - name: Plan
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Apply
+        run: terraform apply -input=false tfplan
+
+  compliance:
+    name: Policy compliance check
+    needs: [platform, landing-zones]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_APPLY_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.MANAGEMENT_SUBSCRIPTION_ID }}
+          allow-no-subscriptions: true
+
+      - name: Check compliance of the organisation scope
+        env:
+          MANAGEMENT_GROUP: ${{ vars.ORG_MANAGEMENT_GROUP_ID }}
+          MAX_NONCOMPLIANT: ${{ vars.MAX_NONCOMPLIANT_RESOURCES || '0' }}
+        run: ./scripts/check-policy-compliance.sh

@@ -1,0 +1,13 @@
+# Checkov configuration.
+# Every skipped check needs a reason; review this list in pull requests.
+framework:
+  - terraform
+quiet: true
+compact: true
+skip-check:
+  # Terraform state account: GitHub-hosted runners reach it over the public endpoint
+  # (shared keys are disabled and access is Entra ID + RBAC only). Private endpoints
+  # are deferred until self-hosted runners exist (see roadmap).
+  - CKV_AZURE_59   # public network access on storage account
+  - CKV2_AZURE_33  # private endpoint for storage account
+  - CKV2_AZURE_1   # customer-managed keys: Microsoft-managed keys accepted for state

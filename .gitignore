@@ -1,0 +1,24 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+tfplan
+plan.txt
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Local variable files (the committed terraform.tfvars in environments/ hold non-secret values only)
+bootstrap/terraform.tfvars
+*.auto.tfvars
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
