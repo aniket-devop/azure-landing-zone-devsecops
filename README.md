@@ -1,6 +1,8 @@
 <div align="center">
 
-![Banner](https://capsule-render.vercel.app/api?type=waving&color=0:0078D4,100:844FBA&height=200&section=header&text=Azure%20Landing%20Zone%20%26%20DevSecOps&fontSize=40&fontColor=ffffff&fontAlignY=38&desc=Industrial%20IoT%20Monitoring%20Platform%20for%20Petroleum%20Refineries&descSize=17&descAlignY=60)
+# Azure Landing Zone and DevSecOps
+
+### Industrial IoT Monitoring Platform for Petroleum Refineries
 
 A three-tier Azure platform provisioned as code with Terraform and shipped through Azure DevOps pipelines, with security, quality, cost and approval controls built into every release.
 
@@ -11,37 +13,37 @@ A three-tier Azure platform provisioned as code with Terraform and shipped throu
 ![SonarQube](https://img.shields.io/badge/Quality-SonarQube-4E9BCD?logo=sonarqubeserver&logoColor=white)
 ![Liquibase](https://img.shields.io/badge/Migrations-Liquibase-2962FF?logo=liquibase&logoColor=white)
 
-[Architecture](#-3-architecture-diagram) · [Traffic flow](#-4-high-level-architecture-and-traffic-flow) · [CI/CD](#-8-infrastructure-cicd-pipeline) · [My role](#-14-my-devsecops-role-and-responsibilities)
+[Architecture](#-3-architecture-diagram) · [Traffic flow](#-4-high-level-architecture-and-traffic-flow) · [Infrastructure pipeline](#-8-infrastructure-cicd-pipeline) · [My role](#-14-my-devsecops-role-and-responsibilities)
 
 </div>
 
 > [!NOTE]
-> The application code was written by the wider development team. This repository documents the platform and the delivery pipelines from a DevSecOps point of view. My own contribution is covered in [section 14](#-14-my-devsecops-role-and-responsibilities).
+> The application code was written by the wider development team. This repository documents the platform and the delivery pipelines from a DevSecOps point of view. My own contribution is described in [section 14](#-14-my-devsecops-role-and-responsibilities).
 
 ---
 
-## ✨ Key Highlights
+## Key Highlights
 
-| | |
+| Area | Summary |
 |---|---|
-| 🧱 **Infrastructure as Code** | Azure Landing Zone built with modular Terraform: reusable child modules plus per-environment configuration |
-| 🛡️ **Security built in** | WAF and TLS termination at the edge, subnet segmentation, private endpoints for PostgreSQL, Key Vault for secrets, Bastion for admin access |
-| 🔍 **Shift-left checks** | tfsec, TFLint, Terraform validation and Infracost run before any infrastructure change is applied |
-| ✋ **Controlled releases** | Plan review with manual approval, and approval gates between Dev, Test and Prod |
-| 🧩 **Independent pipelines** | Infrastructure CI/CD is separate from application CI/CD, and the app has its own frontend, backend and database pipelines |
-| 🗄️ **Versioned schema changes** | Database changes go out through Liquibase in a dedicated pipeline |
+| **Infrastructure as Code** | Azure Landing Zone built with modular Terraform: reusable child modules plus per-environment configuration |
+| **Security built in** | WAF and TLS termination at the edge, subnet segmentation, private endpoints for PostgreSQL, Key Vault for secrets, Bastion for admin access |
+| **Shift-left checks** | tfsec, TFLint, Terraform validation and Infracost run before any infrastructure change is applied |
+| **Controlled releases** | Plan review with manual approval, and approval gates between Dev, Test and Prod |
+| **Independent pipelines** | Infrastructure CI/CD is separate from application CI/CD, and the application has its own frontend, backend and database pipelines |
+| **Versioned schema changes** | Database changes are released through Liquibase in a dedicated pipeline |
 
 <div align="center">
 
 | 3 | 3 | 4 | 4 | 2 |
 |:---:|:---:|:---:|:---:|:---:|
-| environments<br>Dev, Test, Prod | application pipelines<br>frontend, backend, database | subnets<br>frontend, backend, database, Bastion | automated IaC checks<br>validate, tfsec, TFLint, Infracost | approval points<br>before apply, between environments |
+| environments<br>Dev, Test, Prod | application pipelines<br>frontend, backend, database | subnets<br>frontend, backend, database, Bastion | IaC checks<br>validate, tfsec, TFLint, Infracost | approval points<br>before apply, between environments |
 
 </div>
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 
 1. [Project Overview](#-1-project-overview)
 2. [Business Problem and Solution](#-2-business-problem-and-solution)
@@ -72,8 +74,8 @@ IoT devices on motors and pumps send operational metrics to **Azure Event Hubs**
 
 My part was the platform and the delivery around it:
 
-- 🧱 **Platform:** designing the Azure Landing Zone and provisioning it with Terraform.
-- 🔄 **Delivery:** building Azure DevOps pipelines that ship infrastructure and application through Dev, Test and Prod, with automated security, quality and cost checks and manual approvals.
+- **Platform:** designing the Azure Landing Zone and provisioning it with Terraform.
+- **Delivery:** building Azure DevOps pipelines that ship infrastructure and application through Dev, Test and Prod, with automated security, quality and cost checks and manual approvals.
 
 Infrastructure and application releases run in separate pipelines, so an application release never has to wait on an infrastructure change, and the other way round.
 
@@ -116,10 +118,10 @@ Motors and pumps are critical equipment in a refinery. A temperature that keeps 
 
 | Need | How the platform handles it |
 |---|---|
-| 📡 Collect equipment metrics | IoT devices send data to Azure Event Hubs |
-| 📊 See equipment condition | The application processes the data and shows it on monitoring dashboards |
-| 🚨 Act on abnormal readings | Alerts go to operators when a metric crosses a threshold, such as motor temperature above **100 °C** |
-| 🔒 Run it safely | A segmented Azure network with layered controls, deployed through repeatable, reviewed and approved pipelines |
+| Collect equipment metrics | IoT devices send data to Azure Event Hubs |
+| See equipment condition | The application processes the data and shows it on monitoring dashboards |
+| Act on abnormal readings | Alerts go to operators when a metric crosses a threshold, such as motor temperature above **100 °C** |
+| Run it safely | A segmented Azure network with layered controls, deployed through repeatable, reviewed and approved pipelines |
 
 ---
 
@@ -156,7 +158,7 @@ flowchart LR
     class DB,KV data;
 ```
 
-### 🌐 Request flow
+### Request flow
 
 1. Users, such as refinery operators, reach the application through **Azure Application Gateway**. It terminates SSL/TLS and inspects traffic with the **Web Application Firewall (WAF)**.
 2. Application Gateway passes allowed requests to the two frontend VMs.
@@ -164,11 +166,11 @@ flowchart LR
 4. The backend talks to **Azure Database for PostgreSQL Flexible Server** over private endpoints, so database traffic never leaves the private network.
 5. Secrets are kept in **Azure Key Vault**.
 
-### 📡 Data ingestion flow
+### Data ingestion flow
 
 IoT devices on motors and pumps publish metrics to **Azure Event Hubs**. The application processes them, updates the dashboard and checks alert thresholds.
 
-### 🔑 Administrative access
+### Administrative access
 
 Administrators connect to the VMs through **Azure Bastion**. No management ports are open to the internet.
 
@@ -180,12 +182,12 @@ The whole Landing Zone is provisioned with Terraform. The network is split into 
 
 | Subnet | Purpose | Components |
 |---|---|---|
-| 🟦 **Frontend** | Public entry point, presentation tier | Application Gateway (TLS, WAF), two frontend VMs |
-| 🟩 **Backend** | Application tier, not reachable from the internet | Internal Load Balancer, two backend VMs |
-| 🟧 **Database** | Data tier | PostgreSQL Flexible Server via private endpoints |
-| 🟪 **Bastion** | Administrative access | Azure Bastion |
+| **Frontend** | Public entry point, presentation tier | Application Gateway (TLS, WAF), two frontend VMs |
+| **Backend** | Application tier, not reachable from the internet | Internal Load Balancer, two backend VMs |
+| **Database** | Data tier | PostgreSQL Flexible Server via private endpoints |
+| **Bastion** | Administrative access | Azure Bastion |
 
-### 🚧 Network boundaries
+### Network boundaries
 
 | Boundary | Behaviour |
 |---|---|
@@ -202,15 +204,15 @@ Security is layered: at the network edge, inside the network, at the data tier, 
 
 | Layer | Control | Purpose |
 |---|---|---|
-| 🌐 Edge | Application Gateway with WAF | Ends TLS and inspects inbound web traffic |
-| 🧩 Network | Subnet segmentation | Separate frontend, backend, database and Bastion subnets |
-| 🧩 Network | Internal Load Balancer | Keeps backend traffic inside the virtual network |
-| 🗄️ Data | Private endpoints for PostgreSQL | Keeps database connectivity private |
-| 🔑 Access | Azure Bastion | VM administration without public management ports |
-| 🗝️ Secrets | Azure Key Vault | Keeps secrets out of code and pipeline definitions |
-| 🔍 Pipeline | tfsec and TFLint | Catch misconfigurations and quality problems before deployment |
-| 🧪 Pipeline | SonarQube | Code-quality checks on application code |
-| ✋ Process | Manual approval gates | A person signs off before apply and before each promotion |
+| Edge | Application Gateway with WAF | Ends TLS and inspects inbound web traffic |
+| Network | Subnet segmentation | Separate frontend, backend, database and Bastion subnets |
+| Network | Internal Load Balancer | Keeps backend traffic inside the virtual network |
+| Data | Private endpoints for PostgreSQL | Keeps database connectivity private |
+| Access | Azure Bastion | VM administration without public management ports |
+| Secrets | Azure Key Vault | Keeps secrets out of code and pipeline definitions |
+| Pipeline | tfsec and TFLint | Catch misconfigurations and quality problems before deployment |
+| Pipeline | SonarQube | Code-quality checks on application code |
+| Process | Manual approval gates | A person signs off before apply and before each promotion |
 
 ---
 
@@ -258,12 +260,12 @@ flowchart LR
 
 | Stage | What happens |
 |---|---|
-| ✅ Validate | The Terraform configuration is validated |
-| 🔍 Scan | tfsec and TFLint analyse the code |
-| 💰 Cost estimate | Infracost estimates the cost of the change |
-| 📋 Plan | Terraform produces an execution plan |
-| ✋ Review and approve | The plan is reviewed and explicitly approved |
-| 🚀 Apply | Terraform applies the approved plan |
+| Validate | The Terraform configuration is validated |
+| Scan | tfsec and TFLint analyse the code |
+| Cost estimate | Infracost estimates the cost of the change |
+| Plan | Terraform produces an execution plan |
+| Review and approve | The plan is reviewed and explicitly approved |
+| Apply | Terraform applies the approved plan |
 
 ---
 
@@ -271,12 +273,12 @@ flowchart LR
 
 | Tool / step | Role in the pipeline |
 |---|---|
-| ✅ **Terraform validate** | Confirms the configuration is syntactically valid and consistent |
-| 🛡️ **tfsec** | Static security analysis that flags likely misconfigurations |
-| 🧹 **TFLint** | Linting for code quality, best practice and likely errors |
-| 💰 **Infracost** | Shows the cost impact of a change while it is being reviewed |
-| 📋 **Plan review** | Engineers see exactly what will be created, changed or destroyed |
-| ✋ **Manual approval** | The gate between plan and apply, so nothing is applied without sign-off |
+| **Terraform validate** | Confirms the configuration is syntactically valid and consistent |
+| **tfsec** | Static security analysis that flags likely misconfigurations |
+| **TFLint** | Linting for code quality, best practice and likely errors |
+| **Infracost** | Shows the cost impact of a change while it is being reviewed |
+| **Plan review** | Engineers see exactly what will be created, changed or destroyed |
+| **Manual approval** | The gate between plan and apply, so nothing is applied without sign-off |
 
 > [!TIP]
 > All of these run before apply. Security, quality and cost problems show up at the earliest point, when they are cheapest to fix.
@@ -289,19 +291,19 @@ Frontend, backend and database each have their own pipeline. Each one can be bui
 
 | Pipeline | Scope |
 |---|---|
-| 🖥️ **Frontend** | Build, quality check and deployment to the frontend VMs |
-| ⚙️ **Backend** | Build, quality check and deployment to the backend VMs |
-| 🗄️ **Database** | Schema changes with Liquibase ([section 12](#-12-database-migration-with-liquibase)) |
+| **Frontend** | Build, quality check and deployment to the frontend VMs |
+| **Backend** | Build, quality check and deployment to the backend VMs |
+| **Database** | Schema changes with Liquibase ([section 12](#-12-database-migration-with-liquibase)) |
 
 Shared by all three:
 
-- 🧪 **SonarQube** code-quality checks
-- 📦 **Azure Pipeline Artifacts** for build output, so the artifact that was tested is the one that gets promoted
-- 🚦 Deployment through Dev, Test and Prod with manual approval gates ([section 11](#-11-dev-test-and-prod-promotion-strategy))
+- **SonarQube** code-quality checks
+- **Azure Pipeline Artifacts** for build output, so the artifact that was tested is the one that gets promoted
+- Deployment through Dev, Test and Prod with manual approval gates ([section 11](#-11-dev-test-and-prod-promotion-strategy))
 
 ### Infrastructure vs. application CI/CD
 
-| | 🏗️ Infrastructure CI/CD | 🧑‍💻 Application CI/CD |
+| | Infrastructure CI/CD | Application CI/CD |
 |---|---|---|
 | **Delivers** | Azure resources (Landing Zone) via Terraform | Frontend, backend and database changes |
 | **Checks** | Validate, tfsec, TFLint, Infracost, plan review | SonarQube |
@@ -316,19 +318,25 @@ Infrastructure and applications both move through three environments.
 
 ```mermaid
 flowchart LR
-    Build[Build and publish<br/>artifact] --> Dev[🟢 Dev]
+    Build[Build and publish<br/>artifact] --> Dev[Dev]
     Dev --> G1{Approval}
-    G1 --> Test[🟡 Test]
+    G1 --> Test[Test]
     Test --> G2{Approval}
-    G2 --> Prod[🔴 Prod]
+    G2 --> Prod[Prod]
 
     classDef gate fill:#fff4d6,stroke:#d19a00,color:#5c4300;
+    classDef dev fill:#e6f6ec,stroke:#2f855a,color:#14452f;
+    classDef test fill:#e8f1fb,stroke:#0078D4,color:#003a70;
+    classDef prod fill:#fde8e8,stroke:#c53030,color:#5a1313;
     class G1,G2 gate;
+    class Dev dev;
+    class Test test;
+    class Prod prod;
 ```
 
-- 📦 A change is built once, and the same artifact is promoted. It is not rebuilt for each environment.
-- ✋ Manual approval gates control movement between environments, so a release reaches Test and Prod only after sign-off.
-- ⚙️ Differences between environments come from configuration, not from separate code.
+- A change is built once, and the same artifact is promoted. It is not rebuilt for each environment.
+- Manual approval gates control movement between environments, so a release reaches Test and Prod only after sign-off.
+- Differences between environments come from configuration, not from separate code.
 
 ---
 
@@ -369,54 +377,37 @@ I was the DevSecOps engineer on this project. The development team built the app
 
 | Area | What I delivered |
 |---|---|
-| ☁️ **Landing Zone** | Designed the Azure Landing Zone and provisioned it with Terraform |
-| 📦 **Terraform design** | Structured the repository into reusable child modules and per-environment configuration |
-| 🌳 **Branching** | Applied a trunk-based strategy on `main` |
-| 🔄 **Pipelines** | Built Azure DevOps pipelines for Terraform and application CI/CD |
-| 🔍 **IaC security and quality** | Integrated tfsec and TFLint |
-| 💰 **Validation and cost** | Integrated Terraform validation and Infracost |
-| ✋ **Controlled apply** | Set up the plan review, manual approval and apply stages |
-| 🧩 **Application pipelines** | Created separate pipelines for frontend, backend and database |
-| 🧪 **Code quality** | Added SonarQube checks and used Azure Pipeline Artifacts |
-| 🚦 **Promotion** | Set up deployments across Dev, Test and Prod with manual approval gates |
-| 🗄️ **Schema changes** | Used Liquibase for database migrations |
+| **Landing Zone** | Designed the Azure Landing Zone and provisioned it with Terraform |
+| **Terraform design** | Structured the repository into reusable child modules and per-environment configuration |
+| **Branching** | Applied a trunk-based strategy on `main` |
+| **Pipelines** | Built Azure DevOps pipelines for Terraform and application CI/CD |
+| **IaC security and quality** | Integrated tfsec and TFLint |
+| **Validation and cost** | Integrated Terraform validation and Infracost |
+| **Controlled apply** | Set up the plan review, manual approval and apply stages |
+| **Application pipelines** | Created separate pipelines for frontend, backend and database |
+| **Code quality** | Added SonarQube checks and used Azure Pipeline Artifacts |
+| **Promotion** | Set up deployments across Dev, Test and Prod with manual approval gates |
+| **Schema changes** | Used Liquibase for database migrations |
 
 ---
 
 ## 🧰 15. Technology Stack
 
-<div align="center">
-
-![Azure](https://img.shields.io/badge/Azure-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
-![Terraform](https://img.shields.io/badge/Terraform-844FBA?style=flat-square&logo=terraform&logoColor=white)
-![Azure DevOps](https://img.shields.io/badge/Azure%20DevOps-0078D7?style=flat-square&logo=azuredevops&logoColor=white)
-![tfsec](https://img.shields.io/badge/tfsec-1F2937?style=flat-square)
-![TFLint](https://img.shields.io/badge/TFLint-1F2937?style=flat-square)
-![Infracost](https://img.shields.io/badge/Infracost-1F2937?style=flat-square)
-![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?style=flat-square&logo=sonarqubeserver&logoColor=white)
-![Liquibase](https://img.shields.io/badge/Liquibase-2962FF?style=flat-square&logo=liquibase&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Event Hubs](https://img.shields.io/badge/Event%20Hubs-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
-![Key Vault](https://img.shields.io/badge/Key%20Vault-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
-![Bastion](https://img.shields.io/badge/Bastion-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
-
-</div>
-
 | Area | Technology |
 |---|---|
-| ☁️ Cloud platform | Microsoft Azure |
-| 🏗️ Infrastructure as Code | Terraform |
-| 🔄 CI/CD | Azure DevOps Pipelines, Azure Pipeline Artifacts |
-| 🛡️ IaC security and quality | tfsec, TFLint, Terraform validate |
-| 💰 Cost estimation | Infracost |
-| 🧪 Code quality | SonarQube |
-| 🗄️ Database migrations | Liquibase |
-| 🌐 Networking and edge | Virtual Network, Application Gateway (TLS, WAF), Internal Load Balancer |
-| 💻 Compute | Azure Virtual Machines (frontend and backend tiers) |
-| 🐘 Data | Azure Database for PostgreSQL Flexible Server (private endpoints) |
-| 🔑 Secrets and access | Azure Key Vault, Azure Bastion |
-| 📡 Data ingestion | Azure Event Hubs |
-| 🌳 Branching model | Trunk-based development (`main`) |
+| Cloud platform | Microsoft Azure |
+| Infrastructure as Code | Terraform |
+| CI/CD | Azure DevOps Pipelines, Azure Pipeline Artifacts |
+| IaC security and quality | tfsec, TFLint, Terraform validate |
+| Cost estimation | Infracost |
+| Code quality | SonarQube |
+| Database migrations | Liquibase |
+| Networking and edge | Virtual Network, Application Gateway (TLS, WAF), Internal Load Balancer |
+| Compute | Azure Virtual Machines (frontend and backend tiers) |
+| Data | Azure Database for PostgreSQL Flexible Server (private endpoints) |
+| Secrets and access | Azure Key Vault, Azure Bastion |
+| Data ingestion | Azure Event Hubs |
+| Branching model | Trunk-based development (`main`) |
 
 ---
 
@@ -424,7 +415,7 @@ I was the DevSecOps engineer on this project. The development team built the app
 
 Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 
-### ✅ Prerequisites
+### Prerequisites
 
 - An Azure subscription with permission to deploy the Landing Zone
 - An Azure DevOps organisation and project with pipeline permissions
@@ -432,7 +423,7 @@ Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 - A remote Terraform state backend
 - The tools the pipelines use: Terraform, tfsec, TFLint, Infracost, SonarQube, Liquibase
 
-### 📋 Deployment order
+### Deployment order
 
 1. **Infrastructure.** Merge to `main` and run the infrastructure pipeline. Check the validation, scan, cost and plan output, then approve to apply.
 2. **Database.** Run the database pipeline to apply the Liquibase changes.
@@ -444,7 +435,7 @@ Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 ## 🔎 17. Validation and Troubleshooting
 
 <details>
-<summary><b>✔️ Post-release checklist</b></summary>
+<summary><b>Post-release checklist</b></summary>
 
 <br>
 
@@ -460,7 +451,7 @@ Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 </details>
 
 <details>
-<summary><b>🩺 Troubleshooting guide</b></summary>
+<summary><b>Troubleshooting guide</b></summary>
 
 <br>
 
@@ -481,11 +472,11 @@ Deployments are meant to run through the Azure DevOps pipelines, not by hand.
 
 ## 🧹 18. Cleanup and Cost Considerations
 
-### 💰 Cost
+### Cost
 
 Infracost runs in the infrastructure pipeline, so the cost of a change is visible before it is approved. The resources that carry ongoing cost are the VMs, Application Gateway, Azure Bastion, PostgreSQL Flexible Server and Event Hubs. For real numbers, check current Azure pricing and the Infracost output.
 
-### 🗑️ Cleanup
+### Cleanup
 
 1. Confirm that the environment and its data can be removed.
 2. Remove the infrastructure through the Terraform pipeline or an approved destroy process.
@@ -498,11 +489,8 @@ Infracost runs in the infrastructure pipeline, so the cost of a change is visibl
 
 <div align="center">
 
-### Aniket Kumar · DevSecOps Engineer
+**Aniket Kumar** · DevSecOps Engineer
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-aniket484-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/aniket484)
-[![GitHub](https://img.shields.io/badge/GitHub-aniket--devop-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/aniket-devop)
-
-![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:844FBA,100:0078D4&height=90&section=footer)
+[LinkedIn](https://linkedin.com/in/aniket484) · [GitHub](https://github.com/aniket-devop)
 
 </div>
